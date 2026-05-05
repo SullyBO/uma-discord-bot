@@ -2,7 +2,6 @@
 
 A Discord bot for looking up Umamusume data.
 
----
 
 ## Prerequisites
 
@@ -10,7 +9,6 @@ A Discord bot for looking up Umamusume data.
 - Discord bot created via the [Developer Portal](https://discord.com/developers/applications)
 - Access to the Axum backend (running locally for dev)
 
----
 
 ## Setup
 
@@ -29,7 +27,6 @@ A Discord bot for looking up Umamusume data.
 
 3. Create your environment file — populate it with info matching .env-example
 
----
 
 ## Scripts
 
@@ -44,7 +41,6 @@ A Discord bot for looking up Umamusume data.
 | `npm run test:run` | Run tests once |
 | `npm run test:coverage` | Run tests with coverage report |
 
----
 
 ## Project Structure
 
@@ -60,7 +56,6 @@ src/
     └── client.ts     # All calls to the Axum backend
 ```
 
----
 
 ## Contributing
 
