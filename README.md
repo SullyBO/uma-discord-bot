@@ -15,7 +15,7 @@ A Discord bot for looking up Umamusume data.
 1. Clone the repo
 
    ```bash
-   git clone https://github.com/your-org/uma-discord-bot.git
+   git clone https://github.com/SullyBO/uma-discord-bot.git
    cd uma-discord-bot
    ```
 
