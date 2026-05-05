@@ -3,11 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "lint-staged": {
+  "src/**/*.ts": [
+    "prettier --write",
+    "eslint --fix"
+  ]
+  },
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "deploy": "ts-node src/deploy-commands.ts"
+    "start": "NODE_ENV=production node dist/index.js",
+    "deploy:dev": "NODE_ENV=development ts-node src/deploy-commands.ts",
+    "deploy:prod": "NODE_ENV=production ts-node src/deploy-commands.ts",
+    "format": "prettier --write src/**/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +25,20 @@
   "type": "commonjs",
   "dependencies": {
     "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "dotenv-flow": "^4.1.0"
   },
   "devDependencies": {
+    "@types/dotenv-flow": "^3.3.3",
     "@types/node": "^25.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.2",
+    "@typescript-eslint/parser": "^8.59.2",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   }
