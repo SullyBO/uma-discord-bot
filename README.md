@@ -40,6 +40,9 @@ A Discord bot for looking up Umamusume data.
 | `npm run deploy:dev` | Register discord slash commands to your dev server |
 | `npm run format` | Format all source files with Prettier |
 | `npm run lint` | Lint all source files with ESLint |
+| `npm test` | Run tests in watch mode |
+| `npm run test:run` | Run tests once |
+| `npm run test:coverage` | Run tests with coverage report |
 
 ---
 
