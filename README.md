@@ -7,8 +7,6 @@ A Discord bot for looking up Umamusume data.
 
 - Node.js v20+
 - Discord bot created via the [Developer Portal](https://discord.com/developers/applications)
-- Access to the Axum backend (running locally for dev)
-
 
 ## Setup
 
