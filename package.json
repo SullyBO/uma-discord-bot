@@ -10,7 +10,7 @@
     ]
   },
   "scripts": {
-    "dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "start": "NODE_ENV=production node dist/index.js",
     "deploy:dev": "NODE_ENV=development ts-node src/deploy-commands.ts",
@@ -37,6 +37,8 @@
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
     "@vitest/coverage-v8": "^4.1.5",
+    "ajv": "^8.20.0",
+    "cross-env": "^10.1.0",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
