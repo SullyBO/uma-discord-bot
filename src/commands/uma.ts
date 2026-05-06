@@ -25,7 +25,8 @@ export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const ACQUISITION_ORDER = ['Unique', 'Innate', 'Awakening', 'Event', 'Evolution'];
+const ACQUISITION_ORDER = ['Unique', 'Innate', 'Awakening', 'Event'];
+// Simply add `Evolution` at the end of the array to enable evo skills once they're in global
 
 export function buildEmbed(detail: UmaDetail): EmbedBuilder {
   const skillsByAcquisition = detail.skills.reduce<Record<string, string[]>>((acc, skill) => {
