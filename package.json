@@ -12,15 +12,15 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "build": "tsc",
-    "start": "NODE_ENV=production node dist/index.js",
-    "deploy:dev": "NODE_ENV=development ts-node src/deploy-commands.ts",
-    "deploy:prod": "NODE_ENV=production ts-node src/deploy-commands.ts",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "deploy:dev": "cross-env NODE_ENV=development ts-node src/deploy-commands.ts",
+    "deploy:prod": "cross-env NODE_ENV=production ts-node src/deploy-commands.ts",
     "format": "prettier --write src/**/*.ts",
     "lint": "eslint src/**/*.ts",
     "prepare": "husky",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "cross-env NODE_ENV=development vitest",
+    "test:run": "cross-env NODE_ENV=development vitest run",
+    "test:coverage": "cross-env NODE_ENV=development vitest run --coverage"
   },
   "keywords": [],
   "author": "",
