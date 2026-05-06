@@ -14,6 +14,11 @@ export const umaDetailSchema = {
     apt_pace: { type: 'string' },
     apt_late: { type: 'string' },
     apt_end: { type: 'string' },
+    growth_speed: { type: 'number' },
+    growth_stamina: { type: 'number' },
+    growth_power: { type: 'number' },
+    growth_guts: { type: 'number' },
+    growth_wit: { type: 'number' },
     skills: {
       type: 'array',
       items: {
@@ -46,6 +51,11 @@ export const umaDetailSchema = {
     'apt_pace',
     'apt_late',
     'apt_end',
+    'growth_speed',
+    'growth_stamina',
+    'growth_power',
+    'growth_guts',
+    'growth_wit',
     'skills',
   ],
   additionalProperties: false,
