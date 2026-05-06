@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Collection, ChatInputCommandInteraction } from 'discord.js';
-import { execute, buildEmbed, capitalize } from '../../commands/uma';
+import { execute, buildEmbed } from '../../commands/uma';
 import { UmaIndex, UmaDetail } from '../../types';
 import { Fetcher } from '../../api/client';
 
@@ -92,20 +92,6 @@ function makeInteraction(name: string): ChatInputCommandInteraction {
     channel: null,
   } as unknown as ChatInputCommandInteraction;
 }
-
-describe('capitalize', () => {
-  it('capitalizes the first letter', () => {
-    expect(capitalize('hello')).toBe('Hello');
-  });
-
-  it('handles already capitalized strings', () => {
-    expect(capitalize('Wordle')).toBe('Wordle');
-  });
-
-  it('handles empty string', () => {
-    expect(capitalize('')).toBe('');
-  });
-});
 
 describe('buildEmbed', () => {
   it('sets title and URL correctly', () => {
