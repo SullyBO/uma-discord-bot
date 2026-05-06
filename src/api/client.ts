@@ -1,6 +1,8 @@
 import { umaDetailSchema } from '../tests/schemas/umaDetail.schema';
 import { umaIndexSchema } from '../tests/schemas/umaIndex.schema';
-import { UmaDetail, UmaIndex } from '../types';
+import { UmaDetail, UmaIndex, UmaSummary } from '../types';
+import { umaSummarySchema } from '../tests/schemas/umaSummary.schema';
+
 import Ajv, { Schema } from 'ajv';
 
 const ajv = new Ajv();
@@ -34,4 +36,13 @@ export async function fetchUmaIndex(fetcher: Fetcher = fetch): Promise<UmaIndex[
 
 export async function fetchUmaById(id: number, fetcher: Fetcher = fetch): Promise<UmaDetail> {
   return apiFetch<UmaDetail>(`/umas/${id}`, umaDetailSchema, fetcher);
+}
+
+export async function fetchUmas(
+  params: Record<string, string>,
+  fetcher: Fetcher = fetch,
+): Promise<UmaSummary[]> {
+  const query = new URLSearchParams(params).toString();
+  const path = query ? `/umas?${query}` : '/umas';
+  return apiFetch<UmaSummary[]>(path, umaSummarySchema, fetcher);
 }

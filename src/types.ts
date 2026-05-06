@@ -35,3 +35,19 @@ export interface UmaDetail {
   growth_wit: number;
   skills: UmaSkillEntry[];
 }
+
+export interface UmaSummary {
+  id: number;
+  name: string;
+  subtitle: string;
+  apt_turf: string;
+  apt_dirt: string;
+  apt_short: string;
+  apt_mile: string;
+  apt_medium: string;
+  apt_long: string;
+  apt_front: string;
+  apt_pace: string;
+  apt_late: string;
+  apt_end: string;
+}

@@ -9,6 +9,7 @@ import * as dotenvFlow from 'dotenv-flow';
 import { fetchUmaIndex } from './api/client';
 import { umaCache } from './cache';
 import * as umaCommand from './commands/uma';
+import * as umasCommand from './commands/umas';
 
 dotenvFlow.config();
 
@@ -17,6 +18,7 @@ const commands = new Collection<
   { execute: (interaction: ChatInputCommandInteraction) => Promise<void> }
 >();
 commands.set(umaCommand.data.name, umaCommand);
+commands.set(umasCommand.data.name, umasCommand);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
