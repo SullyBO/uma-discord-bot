@@ -12,6 +12,7 @@ import {
 import { umaCache } from '../cache';
 import { fetchUmaById, Fetcher } from '../api/client';
 import { UmaDetail, UmaIndex } from '../types';
+import { formatUmaVersion } from '../utils';
 
 export const data = new SlashCommandBuilder()
   .setName('uma')
@@ -19,11 +20,6 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option.setName('name').setDescription('The umamusume to look up').setRequired(true),
   );
-
-export function capitalize(str: string): string {
-  if (!str) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 const ACQUISITION_ORDER = ['Unique', 'Innate', 'Awakening', 'Event'];
 // Simply add `Evolution` at the end of the array to enable evo skills once they're in global
@@ -52,7 +48,7 @@ export function buildEmbed(detail: UmaDetail): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle(detail.name)
     .setURL(url)
-    .setDescription(capitalize(detail.subtitle))
+    .setDescription(formatUmaVersion(detail.subtitle))
     .setFooter({ text: 'source: gametora' })
     .addFields(
       {
@@ -110,7 +106,7 @@ export async function execute(
       matches.map((uma) =>
         new StringSelectMenuOptionBuilder()
           .setLabel(uma.name)
-          .setDescription(capitalize(uma.version))
+          .setDescription(formatUmaVersion(uma.version))
           .setValue(String(uma.id)),
       ),
     );
