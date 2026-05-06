@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fetchUmaIndex, fetchUmaById, Fetcher } from '../../api/client';
-
+import { fetchUmaIndex, fetchUmaById, fetchUmas, Fetcher } from '../../api/client';
 const mockUmaIndex = [{ id: 1, name: 'Special Week', version: 'A promising newcomer' }];
 
 const mockUmaDetail = {
@@ -33,6 +32,24 @@ function makeFetcher(data: unknown, status = 200): Fetcher {
     json: () => Promise.resolve(data),
   } as Response);
 }
+
+const mockUmaSummaryList = [
+  {
+    id: 1,
+    name: 'Special Week',
+    subtitle: 'default',
+    apt_turf: 'A',
+    apt_dirt: 'G',
+    apt_short: 'G',
+    apt_mile: 'A',
+    apt_medium: 'A',
+    apt_long: 'B',
+    apt_front: 'A',
+    apt_pace: 'B',
+    apt_late: 'C',
+    apt_end: 'G',
+  },
+];
 
 describe('fetchUmaIndex', () => {
   it('returns parsed uma index on success', async () => {
@@ -67,5 +84,31 @@ describe('fetchUmaById', () => {
   it('throws on schema validation failure', async () => {
     const fetcher = makeFetcher({ id: 'not a number' });
     await expect(fetchUmaById(1, fetcher)).rejects.toThrow('Schema validation failed');
+  });
+});
+
+describe('fetchUmas', () => {
+  it('returns parsed uma list on success with no filters', async () => {
+    const fetcher = makeFetcher(mockUmaSummaryList);
+    const result = await fetchUmas({}, fetcher);
+    expect(result).toEqual(mockUmaSummaryList);
+  });
+
+  it('appends query params when filters are provided', async () => {
+    const fetcher = makeFetcher(mockUmaSummaryList);
+    await fetchUmas({ turf: 'A', long: 'A' }, fetcher);
+    const calledUrl = (fetcher as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    expect(calledUrl).toContain('turf=A');
+    expect(calledUrl).toContain('long=A');
+  });
+
+  it('throws on non-ok response', async () => {
+    const fetcher = makeFetcher({}, 500);
+    await expect(fetchUmas({}, fetcher)).rejects.toThrow('API error: 500');
+  });
+
+  it('throws on schema validation failure', async () => {
+    const fetcher = makeFetcher([{ invalid: true }]);
+    await expect(fetchUmas({}, fetcher)).rejects.toThrow('Schema validation failed');
   });
 });
