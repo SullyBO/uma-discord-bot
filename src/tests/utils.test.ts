@@ -35,5 +35,4 @@ describe('formatUmaVersion', () => {
   it('handles empty string', () => {
     expect(formatUmaVersion('')).toBe('');
   });
-  
 });
