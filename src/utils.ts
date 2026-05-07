@@ -7,3 +7,15 @@ export function capitalize(str: string): string {
 export function formatUmaVersion(str: string): string {
   return capitalize(str.replace(/_/g, ' '));
 }
+
+export function formatOperator(operator: string): string {
+  const map: Record<string, string> = {
+    eq: '=',
+    not_eq: '≠',
+    gt: '>',
+    gt_eq: '≥',
+    lt: '<',
+    lt_eq: '≤',
+  };
+  return map[operator] ?? operator;
+}

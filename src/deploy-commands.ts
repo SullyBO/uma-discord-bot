@@ -2,13 +2,20 @@ import { REST, Routes } from 'discord.js';
 import * as dotenvFlow from 'dotenv-flow';
 import { data as umaCommand } from './commands/uma';
 import { data as umasCommand } from './commands/umas';
+import { data as skillCommand } from './commands/skill';
+import { data as skillsCommand } from './commands/skills';
 
 dotenvFlow.config();
 
 const token = process.env.DISCORD_TOKEN!;
 const clientId = process.env.CLIENT_ID!;
 
-const commands = [umaCommand.toJSON(), umasCommand.toJSON()];
+const commands = [
+  umaCommand.toJSON(),
+  umasCommand.toJSON(),
+  skillCommand.toJSON(),
+  skillsCommand.toJSON(),
+];
 
 const rest = new REST().setToken(token);
 

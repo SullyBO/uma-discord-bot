@@ -51,3 +51,35 @@ export interface UmaSummary {
   apt_late: string;
   apt_end: string;
 }
+
+export interface SkillSummary {
+  id: number;
+  name: string;
+  category: string;
+  rarity: string;
+  sp_cost: number;
+  is_jp_only: boolean;
+}
+
+export interface SkillCondition {
+  cond_key: string;
+  operator: string;
+  cond_val: string;
+  is_or: boolean;
+}
+
+export interface SkillEffect {
+  effect_type: string;
+  effect_value: number | null;
+}
+
+export interface SkillTrigger {
+  id: number;
+  effects: SkillEffect[];
+  conditions: SkillCondition[];
+  preconditions: SkillCondition[];
+}
+
+export interface SkillDetail extends SkillSummary {
+  triggers: SkillTrigger[];
+}

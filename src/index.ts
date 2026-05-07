@@ -6,10 +6,12 @@ import {
   MessageFlags,
 } from 'discord.js';
 import * as dotenvFlow from 'dotenv-flow';
-import { fetchUmaIndex } from './api/client';
-import { umaCache } from './cache';
+import { fetchUmaIndex, fetchSkills } from './api/client';
+import { umaCache, skillCache } from './cache';
 import * as umaCommand from './commands/uma';
 import * as umasCommand from './commands/umas';
+import * as skillCommand from './commands/skill';
+import * as skillsCommand from './commands/skills';
 
 dotenvFlow.config();
 
@@ -19,15 +21,20 @@ const commands = new Collection<
 >();
 commands.set(umaCommand.data.name, umaCommand);
 commands.set(umasCommand.data.name, umasCommand);
+commands.set(skillCommand.data.name, skillCommand);
+commands.set(skillsCommand.data.name, skillsCommand);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
 async function populateCache() {
-  const umas = await fetchUmaIndex();
+  const [umas, skills] = await Promise.all([fetchUmaIndex(), fetchSkills({})]);
+
   umas.forEach((uma) => umaCache.set(uma.id, uma));
-  console.log(`Cached ${umaCache.size} umas`);
+  skills.forEach((skill) => skillCache.set(skill.id, skill));
+
+  console.log(`Cached ${umaCache.size} umas, ${skillCache.size} skills`);
 }
 
 client.once('clientReady', async () => {

@@ -1,7 +1,9 @@
 import { umaDetailSchema } from '../tests/schemas/umaDetail.schema';
 import { umaIndexSchema } from '../tests/schemas/umaIndex.schema';
-import { UmaDetail, UmaIndex, UmaSummary } from '../types';
 import { umaSummarySchema } from '../tests/schemas/umaSummary.schema';
+import { skillSummarySchema } from '../tests/schemas/skillSummary.schema';
+import { skillDetailSchema } from '../tests/schemas/skillDetail.schema';
+import { UmaDetail, UmaIndex, UmaSummary, SkillSummary, SkillDetail } from '../types';
 
 import Ajv, { Schema } from 'ajv';
 
@@ -45,4 +47,19 @@ export async function fetchUmas(
   const query = new URLSearchParams(params).toString();
   const path = query ? `/umas?${query}` : '/umas';
   return apiFetch<UmaSummary[]>(path, umaSummarySchema, fetcher);
+}
+
+export async function fetchSkills(
+  params: Record<string, string | boolean>,
+  fetcher: Fetcher = fetch,
+): Promise<SkillSummary[]> {
+  const query = new URLSearchParams(
+    Object.entries({ ...params, is_jp_only: false }).map(([k, v]) => [k, String(v)]),
+  ).toString();
+  console.log(`fetchSkills default settings: ${query}`);
+  return apiFetch<SkillSummary[]>(`/skills?${query}`, skillSummarySchema, fetcher);
+}
+
+export async function fetchSkillById(id: number, fetcher: Fetcher = fetch): Promise<SkillDetail> {
+  return apiFetch<SkillDetail>(`/skills/${id}`, skillDetailSchema, fetcher);
 }
