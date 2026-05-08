@@ -5,6 +5,7 @@ import { data as umasCommand } from './commands/umas';
 import { data as skillCommand } from './commands/skill';
 import { data as skillsCommand } from './commands/skills';
 import { data as helpCommand } from './commands/help';
+import { data as cmCommand } from './commands/cm';
 
 dotenvFlow.config();
 
@@ -17,6 +18,7 @@ const commands = [
   skillCommand.toJSON(),
   skillsCommand.toJSON(),
   helpCommand.toJSON(),
+  cmCommand.toJSON(),
 ];
 
 const rest = new REST().setToken(token);

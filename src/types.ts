@@ -83,3 +83,23 @@ export interface SkillTrigger {
 export interface SkillDetail extends SkillSummary {
   triggers: SkillTrigger[];
 }
+
+export interface CMRace {
+  condition: number;
+  distance: number;
+  ground: number;
+  season: number;
+  track: number;
+  turn: number;
+  weather: number;
+}
+
+export interface CM {
+  id: number;
+  name: string;
+  name_en?: string;
+  race: CMRace;
+  resource_id: number;
+  start: number;
+  end: number;
+}

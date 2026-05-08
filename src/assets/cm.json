@@ -1,0 +1,746 @@
+[
+  {
+    "end": 1621479599,
+    "id": 1,
+    "name": "タウラス杯",
+    "name_en": "Taurus Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2400,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 5,
+    "start": 1620961200
+  },
+  {
+    "end": 1624157999,
+    "id": 2,
+    "name": "ジェミニ杯",
+    "name_en": "Gemini Cup",
+    "race": {
+      "condition": 1,
+      "distance": 3200,
+      "ground": 1,
+      "season": 1,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 6,
+    "start": 1623639600
+  },
+  {
+    "end": 1627527599,
+    "id": 3,
+    "name": "キャンサー杯",
+    "name_en": "Cancer Cup",
+    "race": {
+      "condition": 2,
+      "distance": 1600,
+      "ground": 1,
+      "season": 2,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 7,
+    "start": 1627009200
+  },
+  {
+    "end": 1630292399,
+    "id": 4,
+    "name": "レオ杯",
+    "name_en": "Leo Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2200,
+      "ground": 1,
+      "season": 2,
+      "track": 10009,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 8,
+    "start": 1629774000
+  },
+  {
+    "end": 1632711599,
+    "id": 5,
+    "name": "ヴァルゴ杯",
+    "name_en": "Virgo Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 3,
+      "track": 10009,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 9,
+    "start": 1632193200
+  },
+  {
+    "end": 1635389999,
+    "id": 6,
+    "name": "ライブラ杯",
+    "name_en": "Libra Cup",
+    "race": {
+      "condition": 1,
+      "distance": 3000,
+      "ground": 1,
+      "season": 3,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 10,
+    "start": 1634871600
+  },
+  {
+    "end": 1638154799,
+    "id": 7,
+    "name": "スコーピオ杯",
+    "name_en": "Scorpio Cup",
+    "race": {
+      "condition": 3,
+      "distance": 2000,
+      "ground": 1,
+      "season": 3,
+      "track": 10006,
+      "turn": 2,
+      "weather": 3
+    },
+    "resource_id": 11,
+    "start": 1637636400
+  },
+  {
+    "end": 1640573999,
+    "id": 8,
+    "name": "サジタリウス杯",
+    "name_en": "Sagittarius Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2500,
+      "ground": 1,
+      "season": 4,
+      "track": 10005,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 12,
+    "start": 1640055600
+  },
+  {
+    "end": 1643338799,
+    "id": 9,
+    "name": "カプリコーン杯",
+    "name_en": "Capricorn Cup",
+    "race": {
+      "condition": 3,
+      "distance": 1200,
+      "ground": 1,
+      "season": 4,
+      "track": 10007,
+      "turn": 2,
+      "weather": 4
+    },
+    "resource_id": 1,
+    "start": 1642820400
+  },
+  {
+    "end": 1645671599,
+    "id": 10,
+    "name": "アクエリアス杯",
+    "name_en": "Aquarius Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 2,
+      "season": 4,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 2,
+    "start": 1645153200
+  },
+  {
+    "end": 1648436399,
+    "id": 11,
+    "name": "ピスケス杯",
+    "name_en": "Pisces Cup",
+    "race": {
+      "condition": 4,
+      "distance": 3200,
+      "ground": 1,
+      "season": 1,
+      "track": 10009,
+      "turn": 1,
+      "weather": 3
+    },
+    "resource_id": 3,
+    "start": 1647918000
+  },
+  {
+    "end": 1651114799,
+    "id": 12,
+    "name": "アリエス杯",
+    "name_en": "Aries Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2000,
+      "ground": 1,
+      "season": 1,
+      "track": 10005,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 4,
+    "start": 1650596400
+  },
+  {
+    "end": 1653879599,
+    "id": 13,
+    "name": "タウラス杯",
+    "name_en": "Taurus Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2400,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 5,
+    "start": 1653361200
+  },
+  {
+    "end": 1655693999,
+    "id": 14,
+    "name": "ジェミニ杯",
+    "name_en": "Gemini Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 6,
+    "start": 1655175600
+  },
+  {
+    "end": 1658285999,
+    "id": 15,
+    "name": "キャンサー杯",
+    "name_en": "Cancer Cup",
+    "race": {
+      "condition": 2,
+      "distance": 2200,
+      "ground": 1,
+      "season": 2,
+      "track": 10009,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 7,
+    "start": 1657767600
+  },
+  {
+    "end": 1660877999,
+    "id": 16,
+    "name": "レオ杯",
+    "name_en": "Leo Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1200,
+      "ground": 1,
+      "season": 2,
+      "track": 10005,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 8,
+    "start": 1660359600
+  },
+  {
+    "end": 1663729199,
+    "id": 17,
+    "name": "ヴァルゴ杯",
+    "name_en": "Virgo Cup",
+    "race": {
+      "condition": 2,
+      "distance": 2000,
+      "ground": 2,
+      "season": 3,
+      "track": 10101,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 9,
+    "start": 1663210800
+  },
+  {
+    "end": 1666234799,
+    "id": 18,
+    "name": "ライブラ杯",
+    "name_en": "Libra Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 3,
+      "track": 10009,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 10,
+    "start": 1665716400
+  },
+  {
+    "end": 1668826799,
+    "id": 19,
+    "name": "スコーピオ杯",
+    "name_en": "Scorpio Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2200,
+      "ground": 1,
+      "season": 3,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 11,
+    "start": 1668308400
+  },
+  {
+    "end": 1671591599,
+    "id": 20,
+    "name": "サジタリウス杯",
+    "name_en": "Sagittarius Cup",
+    "race": {
+      "condition": 2,
+      "distance": 2500,
+      "ground": 1,
+      "season": 4,
+      "track": 10005,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 12,
+    "start": 1671073200
+  },
+  {
+    "end": 1674183599,
+    "id": 21,
+    "name": "カプリコーン杯",
+    "name_en": "Capricorn Cup",
+    "race": {
+      "condition": 1,
+      "distance": 1200,
+      "ground": 1,
+      "season": 4,
+      "track": 10007,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 1,
+    "start": 1673665200
+  },
+  {
+    "end": 1677121199,
+    "id": 22,
+    "name": "アクエリアス杯",
+    "name_en": "Aquarius Cup",
+    "race": {
+      "condition": 3,
+      "distance": 1600,
+      "ground": 2,
+      "season": 4,
+      "track": 10006,
+      "turn": 2,
+      "weather": 4
+    },
+    "resource_id": 2,
+    "start": 1676602800
+  },
+  {
+    "end": 1679281199,
+    "id": 23,
+    "name": "ピスケス杯",
+    "name_en": "Pisces Cup",
+    "race": {
+      "condition": 1,
+      "distance": 2000,
+      "ground": 1,
+      "season": 1,
+      "track": 10005,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 3,
+    "start": 1678762800
+  },
+  {
+    "end": 1681873199,
+    "id": 24,
+    "name": "アリエス杯",
+    "name_en": "Aries Cup",
+    "race": {
+      "condition": 1,
+      "distance": 3200,
+      "ground": 1,
+      "season": 1,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 4,
+    "start": 1681354800
+  },
+  {
+    "end": 1687143599,
+    "id": 25,
+    "name": "MILE",
+    "race": {
+      "condition": 4,
+      "distance": 1600,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 3
+    },
+    "resource_id": 14,
+    "start": 1686625200
+  },
+  {
+    "end": 1692845999,
+    "id": 26,
+    "name": "DIRT",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 2,
+      "season": 2,
+      "track": 10104,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 17,
+    "start": 1692327600
+  },
+  {
+    "end": 1697684399,
+    "id": 27,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 3,
+      "distance": 2400,
+      "ground": 1,
+      "season": 3,
+      "track": 10201,
+      "turn": 1,
+      "weather": 3
+    },
+    "resource_id": 15,
+    "start": 1697166000
+  },
+  {
+    "end": 1703041199,
+    "id": 28,
+    "name": "LONG",
+    "race": {
+      "condition": 3,
+      "distance": 2500,
+      "ground": 1,
+      "season": 4,
+      "track": 10005,
+      "turn": 1,
+      "weather": 4
+    },
+    "resource_id": 16,
+    "start": 1702522800
+  },
+  {
+    "end": 1708743599,
+    "id": 29,
+    "name": "SPRINT",
+    "race": {
+      "condition": 2,
+      "distance": 1400,
+      "ground": 1,
+      "season": 4,
+      "track": 10009,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 13,
+    "start": 1708225200
+  },
+  {
+    "end": 1713495599,
+    "id": 30,
+    "name": "MILE",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 5,
+      "track": 10009,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 14,
+    "start": 1712977200
+  },
+  {
+    "end": 1719370799,
+    "id": 31,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 3,
+      "distance": 2400,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 2
+    },
+    "resource_id": 15,
+    "start": 1718852400
+  },
+  {
+    "end": 1725073199,
+    "id": 32,
+    "name": "DIRT",
+    "race": {
+      "condition": 1,
+      "distance": 1800,
+      "ground": 2,
+      "season": 2,
+      "track": 10007,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 17,
+    "start": 1724554800
+  },
+  {
+    "end": 1730170799,
+    "id": 33,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 1,
+      "distance": 2000,
+      "ground": 1,
+      "season": 3,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 15,
+    "start": 1729652400
+  },
+  {
+    "end": 1735354799,
+    "id": 34,
+    "name": "LONG",
+    "race": {
+      "condition": 2,
+      "distance": 2500,
+      "ground": 1,
+      "season": 4,
+      "track": 10005,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 16,
+    "start": 1734836400
+  },
+  {
+    "end": 1738205999,
+    "id": 35,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 3,
+      "distance": 2400,
+      "ground": 1,
+      "season": 4,
+      "track": 10009,
+      "turn": 1,
+      "weather": 3
+    },
+    "resource_id": 15,
+    "start": 1737687600
+  },
+  {
+    "end": 1743389999,
+    "id": 36,
+    "name": "MILE",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 1,
+      "track": 10009,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 14,
+    "start": 1742871600
+  },
+  {
+    "end": 1745895599,
+    "id": 37,
+    "name": "LONG",
+    "race": {
+      "condition": 1,
+      "distance": 3200,
+      "ground": 1,
+      "season": 1,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 16,
+    "start": 1745377200
+  },
+  {
+    "end": 1750993199,
+    "id": 38,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 1,
+      "distance": 2400,
+      "ground": 1,
+      "season": 1,
+      "track": 10006,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 15,
+    "start": 1750474800
+  },
+  {
+    "end": 1753930799,
+    "id": 39,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 2,
+      "distance": 2200,
+      "ground": 1,
+      "season": 2,
+      "track": 10009,
+      "turn": 1,
+      "weather": 2
+    },
+    "resource_id": 15,
+    "start": 1753412400
+  },
+  {
+    "end": 1759028399,
+    "id": 40,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 1,
+      "distance": 2000,
+      "ground": 1,
+      "season": 3,
+      "track": 10008,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 15,
+    "start": 1758510000
+  },
+  {
+    "end": 1761706799,
+    "id": 41,
+    "name": "SPRINT",
+    "race": {
+      "condition": 1,
+      "distance": 1200,
+      "ground": 1,
+      "season": 3,
+      "track": 10003,
+      "turn": 2,
+      "weather": 2
+    },
+    "resource_id": 13,
+    "start": 1761188400
+  },
+  {
+    "end": 1766804399,
+    "id": 42,
+    "name": "MILE",
+    "race": {
+      "condition": 1,
+      "distance": 1600,
+      "ground": 1,
+      "season": 4,
+      "track": 10009,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 14,
+    "start": 1766286000
+  },
+  {
+    "end": 1769569199,
+    "id": 43,
+    "name": "LONG",
+    "race": {
+      "condition": 1,
+      "distance": 2500,
+      "ground": 1,
+      "season": 4,
+      "track": 10005,
+      "turn": 1,
+      "weather": 1
+    },
+    "resource_id": 16,
+    "start": 1769050800
+  },
+  {
+    "end": 1774666799,
+    "id": 44,
+    "name": "CLASSIC",
+    "race": {
+      "condition": 1,
+      "distance": 2200,
+      "ground": 1,
+      "season": 1,
+      "track": 10203,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 15,
+    "start": 1774148400
+  },
+  {
+    "end": 1777431599,
+    "id": 45,
+    "name": "DIRT",
+    "race": {
+      "condition": 1,
+      "distance": 2000,
+      "ground": 2,
+      "season": 1,
+      "track": 10203,
+      "turn": 2,
+      "weather": 1
+    },
+    "resource_id": 17,
+    "start": 1776913200
+  }
+]
