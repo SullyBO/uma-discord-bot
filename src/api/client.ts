@@ -4,6 +4,7 @@ import { umaSummarySchema } from '../tests/schemas/umaSummary.schema';
 import { skillSummarySchema } from '../tests/schemas/skillSummary.schema';
 import { skillDetailSchema } from '../tests/schemas/skillDetail.schema';
 import { UmaDetail, UmaIndex, UmaSummary, SkillSummary, SkillDetail } from '../types';
+import { logRequest } from '../utils';
 
 import Ajv, { Schema } from 'ajv';
 
@@ -12,13 +13,18 @@ const ajv = new Ajv();
 export type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 
 async function apiFetch<T>(path: string, schema: Schema, fetcher: Fetcher): Promise<T> {
+  const start = Date.now();
+
   const res = await fetcher(`${process.env.API_URL}${path}`, {
     headers: {
       Authorization: `Bearer ${process.env.API_KEY}`,
     },
   });
 
+  const ms = Date.now() - start;
+
   if (!res.ok) {
+    logRequest(path, res.status, ms, 'error');
     throw new Error(`API error: ${res.status} ${res.statusText}`);
   }
 
@@ -26,9 +32,11 @@ async function apiFetch<T>(path: string, schema: Schema, fetcher: Fetcher): Prom
 
   const valid = ajv.validate(schema, data);
   if (!valid) {
+    logRequest(path, res.status, ms, 'error');
     throw new Error(`Schema validation failed for ${path}: ${JSON.stringify(ajv.errors, null, 2)}`);
   }
 
+  logRequest(path, res.status, ms, 'ok');
   return data as T;
 }
 
@@ -56,7 +64,6 @@ export async function fetchSkills(
   const query = new URLSearchParams(
     Object.entries({ ...params, is_jp_only: false }).map(([k, v]) => [k, String(v)]),
   ).toString();
-  console.log(`fetchSkills default settings: ${query}`);
   return apiFetch<SkillSummary[]>(`/skills?${query}`, skillSummarySchema, fetcher);
 }
 

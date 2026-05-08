@@ -19,3 +19,11 @@ export function formatOperator(operator: string): string {
   };
   return map[operator] ?? operator;
 }
+
+type LogStatus = 'ok' | 'error';
+
+export function logRequest(path: string, status: number, ms: number, outcome: LogStatus): void {
+  const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const arrow = outcome === 'ok' ? '→' : '✗';
+  console.log(`[${timestamp}] apiFetch GET ${path} ${arrow} ${status} (${ms}ms)`);
+}
