@@ -174,6 +174,7 @@ describe('execute', () => {
         on: vi.fn((event: string, handler: (arg: unknown) => Promise<void>) => {
           handlers[event] = handler;
         }),
+        stop: vi.fn(),
       };
       const interaction = makeInteraction(filters);
       (interaction as unknown as Record<string, unknown>).channel = {
