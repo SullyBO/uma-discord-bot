@@ -5,11 +5,15 @@ import {
   ChatInputCommandInteraction,
   ComponentType,
   EmbedBuilder,
+  InteractionCollector,
   SlashCommandBuilder,
+  ButtonInteraction,
 } from 'discord.js';
 import { fetchUmas, Fetcher } from '../api/client';
 import { UmaSummary } from '../types';
 import { formatUmaVersion } from '../utils';
+
+const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
 export const data = new SlashCommandBuilder()
   .setName('umas')
@@ -103,6 +107,7 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
 export async function execute(interaction: ChatInputCommandInteraction, fetcher: Fetcher = fetch) {
   const input = interaction.options.getString('filters') ?? '';
   const params = input ? parseFilters(input) : {};
+  const userId = interaction.user.id;
 
   await interaction.deferReply();
 
@@ -123,6 +128,8 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
 
   let pageIndex = 0;
 
+  activeCollectors.get(userId)?.stop();
+
   await interaction.editReply({
     embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, params)],
     components: [buildRow(pageIndex, pages.length)],
@@ -131,22 +138,26 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: ComponentType.Button,
     filter: (i) =>
-      (i.customId === 'umas_prev' || i.customId === 'umas_next') &&
-      i.user.id === interaction.user.id,
+      (i.customId === 'umas_prev' || i.customId === 'umas_next') && i.user.id === userId,
     time: 120_000,
   });
 
-  collector?.on('collect', async (i) => {
-    if (i.customId === 'umas_prev') pageIndex = Math.max(0, pageIndex - 1);
-    if (i.customId === 'umas_next') pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+  if (collector) {
+    activeCollectors.set(userId, collector);
 
-    await i.update({
-      embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, params)],
-      components: [buildRow(pageIndex, pages.length)],
+    collector.on('collect', async (i) => {
+      if (i.customId === 'umas_prev') pageIndex = Math.max(0, pageIndex - 1);
+      if (i.customId === 'umas_next') pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+
+      await i.update({
+        embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, params)],
+        components: [buildRow(pageIndex, pages.length)],
+      });
     });
-  });
 
-  collector?.on('end', async () => {
-    await interaction.editReply({ components: [] });
-  });
+    collector.on('end', () => {
+      activeCollectors.delete(userId);
+      interaction.editReply({ components: [] }).catch(() => undefined);
+    });
+  }
 }
