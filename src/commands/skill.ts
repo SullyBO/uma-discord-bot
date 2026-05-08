@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
+  Collection,
   ComponentType,
   EmbedBuilder,
   MessageFlags,
@@ -10,7 +11,7 @@ import {
 } from 'discord.js';
 import { fetchSkillById, Fetcher } from '../api/client';
 import { skillCache } from '../cache';
-import { SkillDetail } from '../types';
+import { SkillDetail, SkillSummary } from '../types';
 import { formatOperator } from '../utils';
 
 export const data = new SlashCommandBuilder()
@@ -52,10 +53,14 @@ function buildEmbed(detail: SkillDetail): EmbedBuilder {
     .setFooter({ text: `src: gametora.com` });
 }
 
-export async function execute(interaction: ChatInputCommandInteraction, fetcher: Fetcher = fetch) {
+export async function execute(
+  interaction: ChatInputCommandInteraction,
+  fetcher: Fetcher = fetch,
+  cache: Collection<number, SkillSummary> = skillCache,
+) {
   const query = interaction.options.getString('name', true).toLowerCase();
 
-  const matches = skillCache.filter((skill) => skill.name.toLowerCase().includes(query));
+  const matches = cache.filter((skill) => skill.name.toLowerCase().includes(query));
 
   if (matches.size === 0) {
     await interaction.reply({
