@@ -16,7 +16,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('category')
-      .setDescription('Skill category (e.g. velocity, recovery, green etc.)')
+      .setDescription('Skill category (/help skill category for more info)')
       .setRequired(false),
   )
   .addStringOption((option) =>
@@ -28,7 +28,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('effect_type')
-      .setDescription('Effect type as they are on gametora (e.g. target speed, stamina stat up.)')
+      .setDescription('Effect type as they are on gametora (/help skill effect type for more info)')
       .setRequired(false),
   );
 

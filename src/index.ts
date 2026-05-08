@@ -12,6 +12,7 @@ import * as umaCommand from './commands/uma';
 import * as umasCommand from './commands/umas';
 import * as skillCommand from './commands/skill';
 import * as skillsCommand from './commands/skills';
+import * as helpCommand from './commands/help';
 
 dotenvFlow.config();
 
@@ -23,6 +24,7 @@ commands.set(umaCommand.data.name, umaCommand);
 commands.set(umasCommand.data.name, umasCommand);
 commands.set(skillCommand.data.name, skillCommand);
 commands.set(skillsCommand.data.name, skillsCommand);
+commands.set(helpCommand.data.name, helpCommand);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
