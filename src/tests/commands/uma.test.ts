@@ -23,6 +23,8 @@ const mockUmaDetail: UmaDetail = {
   growth_power: 15,
   growth_guts: 5,
   growth_wit: 10,
+  release_date: '2025-06-26',
+  is_predicted_date: false,
   skills: [
     {
       id: 1,

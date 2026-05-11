@@ -19,6 +19,8 @@ export const umaDetailSchema = {
     growth_power: { type: 'number' },
     growth_guts: { type: 'number' },
     growth_wit: { type: 'number' },
+    release_date: { type: 'string' },
+    is_predicted_date: { type: 'boolean' },
     skills: {
       type: 'array',
       items: {
@@ -56,6 +58,8 @@ export const umaDetailSchema = {
     'growth_power',
     'growth_guts',
     'growth_wit',
+    'release_date',
+    'is_predicted_date',
     'skills',
   ],
   additionalProperties: false,

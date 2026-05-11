@@ -33,6 +33,8 @@ export interface UmaDetail {
   growth_power: number;
   growth_guts: number;
   growth_wit: number;
+  release_date: string;
+  is_predicted_date: false;
   skills: UmaSkillEntry[];
 }
 
@@ -50,6 +52,8 @@ export interface UmaSummary {
   apt_pace: string;
   apt_late: string;
   apt_end: string;
+  release_date: string;
+  is_predicted_date: boolean;
 }
 
 export interface SkillSummary {

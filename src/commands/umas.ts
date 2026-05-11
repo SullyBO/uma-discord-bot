@@ -23,6 +23,12 @@ export const data = new SlashCommandBuilder()
       .setName('filters')
       .setDescription('Aptitude filters e.g. turf:A long:A mile:B')
       .setRequired(false),
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName('released')
+      .setDescription('Show only released (default: true)')
+      .setRequired(false),
   );
 
 const FILTER_KEY_MAP: Record<string, string> = {
@@ -106,12 +112,13 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
 
 export async function execute(interaction: ChatInputCommandInteraction, fetcher: Fetcher = fetch) {
   const input = interaction.options.getString('filters') ?? '';
+  const released = interaction.options.getBoolean('released') ?? true;
   const params = input ? parseFilters(input) : {};
   const userId = interaction.user.id;
 
   await interaction.deferReply();
 
-  const umas = await fetchUmas(params, fetcher);
+  const umas = await fetchUmas({ ...params, released }, fetcher);
 
   if (umas.length === 0) {
     await interaction.editReply({ content: 'No umamusume found matching those filters.' });

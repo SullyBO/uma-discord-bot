@@ -16,6 +16,8 @@ export const umaSummarySchema = {
       apt_pace: { type: 'string' },
       apt_late: { type: 'string' },
       apt_end: { type: 'string' },
+      release_date: { type: 'string' },
+      is_predicted_date: { type: 'boolean' },
     },
     required: [
       'id',
@@ -31,6 +33,8 @@ export const umaSummarySchema = {
       'apt_pace',
       'apt_late',
       'apt_end',
+      'release_date',
+      'is_predicted_date',
     ],
     additionalProperties: false,
   },

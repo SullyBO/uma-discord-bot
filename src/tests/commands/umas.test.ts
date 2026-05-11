@@ -25,6 +25,8 @@ const mockUmaSummary: UmaSummary = {
   apt_pace: 'B',
   apt_late: 'C',
   apt_end: 'G',
+  release_date: '2025-06-26',
+  is_predicted_date: false,
 };
 
 function makeFetcher(data: UmaSummary[]): Fetcher {
@@ -35,9 +37,12 @@ function makeFetcher(data: UmaSummary[]): Fetcher {
   } as Response);
 }
 
-function makeInteraction(filters?: string): ChatInputCommandInteraction {
+function makeInteraction(filters?: string, released?: boolean | null): ChatInputCommandInteraction {
   return {
-    options: { getString: vi.fn().mockReturnValue(filters ?? null) },
+    options: {
+      getString: vi.fn().mockReturnValue(filters ?? null),
+      getBoolean: vi.fn().mockReturnValue(released ?? null),
+    },
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
     user: { id: 'user-123' },
@@ -158,6 +163,22 @@ describe('execute', () => {
     expect(calledUrl).toContain('turf=A');
   });
 
+  it('defaults released to true when not provided', async () => {
+    const interaction = makeInteraction();
+    const fetcher = makeFetcher([mockUmaSummary]);
+    await execute(interaction, fetcher);
+    const calledUrl = (fetcher as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    expect(calledUrl).toContain('released=true');
+  });
+
+  it('passes released=false when explicitly set', async () => {
+    const interaction = makeInteraction(undefined, false);
+    const fetcher = makeFetcher([mockUmaSummary]);
+    await execute(interaction, fetcher);
+    const calledUrl = (fetcher as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    expect(calledUrl).toContain('released=false');
+  });
+
   it('shows pagination when results span multiple pages', async () => {
     const manyUmas = Array.from({ length: 6 }, (_, i) => ({ ...mockUmaSummary, id: i }));
     const interaction = makeInteraction();
@@ -168,7 +189,10 @@ describe('execute', () => {
   });
 
   describe('collector', () => {
-    function makeCollectorInteraction(filters?: string): ChatInputCommandInteraction {
+    function makeCollectorInteraction(
+      filters?: string,
+      released?: boolean | null,
+    ): ChatInputCommandInteraction {
       const handlers: Record<string, (arg: unknown) => Promise<void>> = {};
       const mockCollector = {
         on: vi.fn((event: string, handler: (arg: unknown) => Promise<void>) => {
@@ -176,7 +200,7 @@ describe('execute', () => {
         }),
         stop: vi.fn(),
       };
-      const interaction = makeInteraction(filters);
+      const interaction = makeInteraction(filters, released);
       (interaction as unknown as Record<string, unknown>).channel = {
         createMessageComponentCollector: vi.fn().mockReturnValue(mockCollector),
       };

@@ -54,11 +54,14 @@ export async function fetchUmaById(id: number, fetcher: Fetcher = fetch): Promis
 }
 
 export async function fetchUmas(
-  params: Record<string, string>,
+  params: Record<string, string | boolean>,
   fetcher: Fetcher = fetch,
 ): Promise<UmaSummary[]> {
-  const query = new URLSearchParams(params).toString();
+  const query = new URLSearchParams(
+    Object.entries({ released: true, ...params }).map(([k, v]) => [k, String(v)]),
+  ).toString();
   const path = query ? `/umas?${query}` : '/umas';
+
   return apiFetch<UmaSummary[]>(path, umaSummarySchema, fetcher);
 }
 

@@ -21,6 +21,8 @@ const mockUmaDetail = {
   growth_power: 10,
   growth_guts: 10,
   growth_wit: 10,
+  release_date: '2026-07-28',
+  is_predicted_date: false,
   skills: [],
 };
 
@@ -48,6 +50,8 @@ const mockUmaSummaryList = [
     apt_pace: 'B',
     apt_late: 'C',
     apt_end: 'G',
+    release_date: '2025-08-27',
+    is_predicted_date: false,
   },
 ];
 
