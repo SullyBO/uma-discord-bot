@@ -6,7 +6,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import * as dotenvFlow from 'dotenv-flow';
-import { fetchUmaIndex, fetchSkills } from './api/client';
+import { fetchUmaIndex, fetchSkillIndex } from './api/client';
 import { umaCache, skillCache } from './cache';
 import * as umaCommand from './commands/uma';
 import * as umasCommand from './commands/umas';
@@ -33,7 +33,7 @@ const client = new Client({
 });
 
 async function populateCache() {
-  const [umas, skills] = await Promise.all([fetchUmaIndex(), fetchSkills({})]);
+  const [umas, skills] = await Promise.all([fetchUmaIndex(), fetchSkillIndex()]);
 
   umas.forEach((uma) => umaCache.set(uma.id, uma));
   skills.forEach((skill) => skillCache.set(skill.id, skill));

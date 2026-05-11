@@ -3,7 +3,8 @@ import { umaIndexSchema } from '../tests/schemas/umaIndex.schema';
 import { umaSummarySchema } from '../tests/schemas/umaSummary.schema';
 import { skillSummarySchema } from '../tests/schemas/skillSummary.schema';
 import { skillDetailSchema } from '../tests/schemas/skillDetail.schema';
-import { UmaDetail, UmaIndex, UmaSummary, SkillSummary, SkillDetail } from '../types';
+import { skillIndexSchema } from '../tests/schemas/skillIndex.schema';
+import { UmaDetail, UmaIndex, UmaSummary, SkillSummary, SkillDetail, SkillIndex } from '../types';
 import { logRequest } from '../utils';
 
 import Ajv, { Schema } from 'ajv';
@@ -42,6 +43,10 @@ async function apiFetch<T>(path: string, schema: Schema, fetcher: Fetcher): Prom
 
 export async function fetchUmaIndex(fetcher: Fetcher = fetch): Promise<UmaIndex[]> {
   return apiFetch<UmaIndex[]>('/umas/index', umaIndexSchema, fetcher);
+}
+
+export async function fetchSkillIndex(fetcher: Fetcher = fetch): Promise<SkillIndex[]> {
+  return apiFetch<SkillIndex[]>('/skills/index', skillIndexSchema, fetcher);
 }
 
 export async function fetchUmaById(id: number, fetcher: Fetcher = fetch): Promise<UmaDetail> {

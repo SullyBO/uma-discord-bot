@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import { fetchSkillById, Fetcher } from '../api/client';
 import { skillCache } from '../cache';
-import { SkillDetail, SkillSummary } from '../types';
+import { SkillDetail, SkillIndex } from '../types';
 import { formatOperator } from '../utils';
 
 export const data = new SlashCommandBuilder()
@@ -56,7 +56,7 @@ function buildEmbed(detail: SkillDetail): EmbedBuilder {
 export async function execute(
   interaction: ChatInputCommandInteraction,
   fetcher: Fetcher = fetch,
-  cache: Collection<number, SkillSummary> = skillCache,
+  cache: Collection<number, SkillIndex> = skillCache,
 ) {
   const query = interaction.options.getString('name', true).toLowerCase();
 

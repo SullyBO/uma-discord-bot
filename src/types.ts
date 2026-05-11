@@ -103,3 +103,8 @@ export interface CM {
   start: number;
   end: number;
 }
+
+export interface SkillIndex {
+  id: number;
+  name: string;
+}
