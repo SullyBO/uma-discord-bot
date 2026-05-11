@@ -54,16 +54,30 @@ describe('buildEmbed', () => {
     expect(fields.find((f) => f.name === 'Distance')?.value).toBe('2400m');
   });
 
-  it('maps ground 1 to Turf', () => {
-    const fields =
-      buildEmbed(mockCM({ race: { ...mockCM().race, ground: 1 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Ground')?.value).toBe('Turf');
+  it('maps ground 1 to Turf in title', () => {
+    const embed = buildEmbed(mockCM({ race: { ...mockCM().race, ground: 1 } }));
+    expect(embed.toJSON().title).toContain('Turf');
   });
 
-  it('maps ground 2 to Dirt', () => {
+  it('maps ground 2 to Dirt in title', () => {
+    const embed = buildEmbed(mockCM({ race: { ...mockCM().race, ground: 2 } }));
+    expect(embed.toJSON().title).toContain('Dirt');
+  });
+
+  it('falls back to raw number for unknown ground in title', () => {
+    const embed = buildEmbed(mockCM({ race: { ...mockCM().race, ground: 99 } }));
+    expect(embed.toJSON().title).toContain('99');
+  });
+
+  it('maps track correctly', () => {
+    const fields = buildEmbed(mockCM()).toJSON().fields ?? [];
+    expect(fields.find((f) => f.name === 'Track')?.value).toBe('Tokyo');
+  });
+
+  it('falls back to raw number for unknown track', () => {
     const fields =
-      buildEmbed(mockCM({ race: { ...mockCM().race, ground: 2 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Ground')?.value).toBe('Dirt');
+      buildEmbed(mockCM({ race: { ...mockCM().race, track: 99999 } })).toJSON().fields ?? [];
+    expect(fields.find((f) => f.name === 'Track')?.value).toBe('99999');
   });
 
   it('maps season correctly', () => {
@@ -94,12 +108,6 @@ describe('buildEmbed', () => {
     const fields =
       buildEmbed(mockCM({ race: { ...mockCM().race, turn: 2 } })).toJSON().fields ?? [];
     expect(fields.find((f) => f.name === 'Direction')?.value).toBe('Left-handed');
-  });
-
-  it('falls back to raw number for unknown ground', () => {
-    const fields =
-      buildEmbed(mockCM({ race: { ...mockCM().race, ground: 99 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Ground')?.value).toBe('99');
   });
 
   it('falls back to raw number for unknown season', () => {
