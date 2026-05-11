@@ -35,9 +35,9 @@ function buildEmbed(detail: SkillDetail): EmbedBuilder {
       .map((c) => `${c.cond_key} ${formatOperator(c.operator)} ${c.cond_val}`)
       .join(', ');
 
-    const parts = [`**Trigger ${i + 1}**`, `Effects: ${effects || 'none'}`];
-    if (preconditions) parts.push(`Preconditions: ${preconditions}`);
-    if (conditions) parts.push(`Conditions: ${conditions}`);
+    const parts = [`**Trigger ${i + 1}**`, `**Effects:** ${effects || 'none'}`];
+    if (preconditions) parts.push(`**Preconditions:** ${preconditions}`);
+    if (conditions) parts.push(`**Conditions:** ${conditions}`);
 
     return parts.join('\n');
   });
@@ -47,7 +47,9 @@ function buildEmbed(detail: SkillDetail): EmbedBuilder {
     .addFields(
       { name: 'Category', value: detail.category, inline: true },
       { name: 'Rarity', value: detail.rarity, inline: true },
-      { name: 'SP Cost', value: String(detail.sp_cost), inline: true },
+      ...(detail.sp_cost > 0
+        ? [{ name: 'SP Cost', value: String(detail.sp_cost), inline: true }]
+        : []),
     )
     .setDescription(triggerLines.join('\n\n') || 'No trigger data available.')
     .setFooter({ text: `src: gametora.com` });

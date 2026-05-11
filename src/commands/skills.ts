@@ -51,9 +51,10 @@ export function buildParams(interaction: ChatInputCommandInteraction): Record<st
 }
 
 export function formatSummary(skill: SkillSummary): string {
+  const costPart = skill.sp_cost > 0 ? ` | SP: ${skill.sp_cost}` : '';
   return [
     `**${skill.name}**`,
-    `Category: ${skill.category} | Rarity: ${skill.rarity} | SP: ${skill.sp_cost}`,
+    `Category: ${skill.category} | Rarity: ${skill.rarity}${costPart}`,
   ].join('\n');
 }
 
