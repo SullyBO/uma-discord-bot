@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fetchUmaIndex, fetchUmaById, fetchUmas, Fetcher } from '../../api/client';
+import { fetchUmaIndex, fetchUmaById, fetchUmas, fetchSkillIndex, Fetcher } from '../../api/client';
 const mockUmaIndex = [{ id: 1, name: 'Special Week', version: 'A promising newcomer' }];
 
 const mockUmaDetail = {
@@ -50,6 +50,35 @@ const mockUmaSummaryList = [
     apt_end: 'G',
   },
 ];
+
+const mockSkillIndex = [
+  { id: 1, name: 'Speed Burst' },
+  { id: 2, name: 'Final Stretch' },
+];
+
+describe('fetchSkillIndex', () => {
+  it('returns parsed skill index on success', async () => {
+    const fetcher = makeFetcher(mockSkillIndex);
+    const result = await fetchSkillIndex(fetcher);
+    expect(result).toEqual(mockSkillIndex);
+  });
+
+  it('throws on non-ok response', async () => {
+    const fetcher = makeFetcher({}, 500);
+    await expect(fetchSkillIndex(fetcher)).rejects.toThrow('API error: 500');
+  });
+
+  it('throws on schema validation failure', async () => {
+    const fetcher = makeFetcher([{ invalid: true }]);
+    await expect(fetchSkillIndex(fetcher)).rejects.toThrow('Schema validation failed');
+  });
+
+  it('returns empty array when index is empty', async () => {
+    const fetcher = makeFetcher([]);
+    const result = await fetchSkillIndex(fetcher);
+    expect(result).toEqual([]);
+  });
+});
 
 describe('fetchUmaIndex', () => {
   it('returns parsed uma index on success', async () => {
