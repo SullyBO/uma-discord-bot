@@ -81,19 +81,19 @@ describe('buildEmbed', () => {
   it('maps condition correctly', () => {
     const fields =
       buildEmbed(mockCM({ race: { ...mockCM().race, condition: 4 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Condition')?.value).toBe('Bad');
+    expect(fields.find((f) => f.name === 'Condition')?.value).toBe('Heavy');
   });
 
   it('maps turn 1 to Right-handed', () => {
     const fields =
       buildEmbed(mockCM({ race: { ...mockCM().race, turn: 1 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Turn')?.value).toBe('Right-handed');
+    expect(fields.find((f) => f.name === 'Direction')?.value).toBe('Right-handed');
   });
 
   it('maps turn 2 to Left-handed', () => {
     const fields =
       buildEmbed(mockCM({ race: { ...mockCM().race, turn: 2 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Turn')?.value).toBe('Left-handed');
+    expect(fields.find((f) => f.name === 'Direction')?.value).toBe('Left-handed');
   });
 
   it('falls back to raw number for unknown ground', () => {
@@ -108,10 +108,10 @@ describe('buildEmbed', () => {
     expect(fields.find((f) => f.name === 'Season')?.value).toBe('99');
   });
 
-  it('falls back to raw number for unknown turn', () => {
+  it('falls back to raw number for unknown direction', () => {
     const fields =
       buildEmbed(mockCM({ race: { ...mockCM().race, turn: 99 } })).toJSON().fields ?? [];
-    expect(fields.find((f) => f.name === 'Turn')?.value).toBe('99');
+    expect(fields.find((f) => f.name === 'Direction')?.value).toBe('99');
   });
 
   it('falls back to raw number for unknown weather', () => {

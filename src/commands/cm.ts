@@ -24,27 +24,25 @@ const SEASON: Record<number, string> = {
   5: 'Cherry Blossom',
 };
 const WEATHER: Record<number, string> = { 1: 'Sunny', 2: 'Cloudy', 3: 'Rainy', 4: 'Snowy' };
-const CONDITION: Record<number, string> = { 1: 'Good', 2: 'Slightly Heavy', 3: 'Heavy', 4: 'Bad' };
+const CONDITION: Record<number, string> = { 1: 'Firm', 2: 'Good', 3: 'Soft', 4: 'Heavy' };
 const TURN: Record<number, string> = { 1: 'Right-handed', 2: 'Left-handed' };
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
 export function buildEmbed(cm: CM): EmbedBuilder {
   const name = cm.name_en ?? cm.name;
-  return new EmbedBuilder()
-    .setTitle(`CM ${cm.id} — ${name}`)
-    .addFields(
-      { name: 'Distance', value: `${cm.race.distance}m`, inline: true },
-      { name: 'Ground', value: GROUND[cm.race.ground] ?? String(cm.race.ground), inline: true },
-      { name: 'Season', value: SEASON[cm.race.season] ?? String(cm.race.season), inline: true },
-      { name: 'Weather', value: WEATHER[cm.race.weather] ?? String(cm.race.weather), inline: true },
-      {
-        name: 'Condition',
-        value: CONDITION[cm.race.condition] ?? String(cm.race.condition),
-        inline: true,
-      },
-      { name: 'Turn', value: TURN[cm.race.turn] ?? String(cm.race.turn), inline: true },
-    );
+  return new EmbedBuilder().setTitle(`CM ${cm.id} — ${name}`).addFields(
+    { name: 'Distance', value: `${cm.race.distance}m`, inline: true },
+    { name: 'Ground', value: GROUND[cm.race.ground] ?? String(cm.race.ground), inline: true },
+    { name: 'Season', value: SEASON[cm.race.season] ?? String(cm.race.season), inline: true },
+    { name: 'Weather', value: WEATHER[cm.race.weather] ?? String(cm.race.weather), inline: true },
+    {
+      name: 'Condition',
+      value: CONDITION[cm.race.condition] ?? String(cm.race.condition),
+      inline: true,
+    },
+    { name: 'Direction', value: TURN[cm.race.turn] ?? String(cm.race.turn), inline: true },
+  );
 }
 
 export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilder<ButtonBuilder> {
