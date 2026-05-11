@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Collection, ChatInputCommandInteraction } from 'discord.js';
-import { execute, buildEmbed } from '../../commands/uma';
+import {
+  Collection,
+  ChatInputCommandInteraction,
+  APIButtonComponentWithCustomId,
+} from 'discord.js';
+import { execute, buildDetailsEmbed, buildSkillsEmbed, buildPageRow } from '../../commands/uma';
 import { UmaIndex, UmaDetail } from '../../types';
 import { Fetcher } from '../../api/client';
 
@@ -95,28 +99,44 @@ function makeInteraction(name: string): ChatInputCommandInteraction {
   } as unknown as ChatInputCommandInteraction;
 }
 
-describe('buildEmbed', () => {
+describe('buildDetailsEmbed', () => {
   it('sets title and URL correctly', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildDetailsEmbed(mockUmaDetail);
     const data = embed.toJSON();
     expect(data.title).toBe('Special Week');
     expect(data.url).toBe('https://gametora.com/umamusume/characters/100101-special-week');
   });
 
   it('capitalizes the subtitle in description', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildDetailsEmbed(mockUmaDetail);
     expect(embed.toJSON().description).toBe('A promising newcomer');
   });
 
   it('includes growth field', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildDetailsEmbed(mockUmaDetail);
     const fields = embed.toJSON().fields ?? [];
     const growth = fields.find((f) => f.name === 'Growth');
     expect(growth?.value).toBe('Speed: 10% | Stamina: 20% | Power: 15% | Guts: 5% | Wit: 10%');
   });
 
+  it('does not include skill fields', () => {
+    const embed = buildDetailsEmbed(mockUmaDetail);
+    const fields = embed.toJSON().fields ?? [];
+    expect(fields.find((f) => f.name === 'Unique')).toBeUndefined();
+    expect(fields.find((f) => f.name === 'Innate')).toBeUndefined();
+  });
+});
+
+describe('buildSkillsEmbed', () => {
+  it('sets title and URL correctly', () => {
+    const embed = buildSkillsEmbed(mockUmaDetail);
+    const data = embed.toJSON();
+    expect(data.title).toBe('Special Week');
+    expect(data.url).toBe('https://gametora.com/umamusume/characters/100101-special-week');
+  });
+
   it('groups skills by acquisition in correct order', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildSkillsEmbed(mockUmaDetail);
     const fields = embed.toJSON().fields ?? [];
     const skillFieldNames = fields
       .filter((f) => ['Unique', 'Innate', 'Awakening', 'Event', 'Evolution'].includes(f.name))
@@ -125,7 +145,7 @@ describe('buildEmbed', () => {
   });
 
   it('groups multiple skills under the same acquisition', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildSkillsEmbed(mockUmaDetail);
     const fields = embed.toJSON().fields ?? [];
     const unique = fields.find((f) => f.name === 'Unique');
     expect(unique?.value).toContain('Unique Skill');
@@ -133,10 +153,24 @@ describe('buildEmbed', () => {
   });
 
   it('omits acquisition groups with no skills', () => {
-    const embed = buildEmbed(mockUmaDetail);
+    const embed = buildSkillsEmbed(mockUmaDetail);
     const fields = embed.toJSON().fields ?? [];
     expect(fields.find((f) => f.name === 'Awakening')).toBeUndefined();
     expect(fields.find((f) => f.name === 'Evolution')).toBeUndefined();
+  });
+});
+
+describe('buildPageRow', () => {
+  it('shows Skills label when on details page', () => {
+    const row = buildPageRow('details');
+    const components = row.toJSON().components;
+    expect((components[0] as APIButtonComponentWithCustomId).label).toBe('View Skills');
+  });
+
+  it('shows Details label when on skills page', () => {
+    const row = buildPageRow('skills');
+    const components = row.toJSON().components;
+    expect((components[0] as APIButtonComponentWithCustomId).label).toBe('View Details');
   });
 });
 
@@ -160,7 +194,7 @@ describe('execute', () => {
     await execute(interaction, cache, makeFetcher(mockUmaDetail));
     expect(interaction.deferReply).toHaveBeenCalled();
     expect(interaction.editReply).toHaveBeenCalledWith(
-      expect.objectContaining({ embeds: expect.any(Array) }),
+      expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }),
     );
   });
 
@@ -206,7 +240,7 @@ describe('execute', () => {
 
       expect(selectInteraction.deferUpdate).toHaveBeenCalled();
       expect(interaction.editReply).toHaveBeenCalledWith(
-        expect.objectContaining({ embeds: expect.any(Array), components: [] }),
+        expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }),
       );
     });
 
