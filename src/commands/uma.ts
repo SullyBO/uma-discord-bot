@@ -1,5 +1,7 @@
 import {
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Collection,
   ComponentType,
@@ -24,10 +26,50 @@ export const data = new SlashCommandBuilder()
 const ACQUISITION_ORDER = ['Unique', 'Innate', 'Awakening', 'Event'];
 // Simply add `Evolution` at the end of the array to enable evo skills once they're in global
 
-export function buildEmbed(detail: UmaDetail): EmbedBuilder {
+export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
+  const slug = detail.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const url = `https://gametora.com/umamusume/characters/${detail.id}-${slug}`;
+
+  return new EmbedBuilder()
+    .setTitle(detail.name)
+    .setURL(url)
+    .setDescription(formatUmaVersion(detail.subtitle))
+    .setFooter({ text: 'source: gametora' })
+    .addFields(
+      {
+        name: 'Growth',
+        value: `Speed: ${detail.growth_speed}% | Stamina: ${detail.growth_stamina}% | Power: ${detail.growth_power}% | Guts: ${detail.growth_guts}% | Wit: ${detail.growth_wit}%`,
+        inline: false,
+      },
+      {
+        name: 'Surface',
+        value: `Turf: ${detail.apt_turf}
+        Dirt: ${detail.apt_dirt}`,
+        inline: true,
+      },
+      {
+        name: 'Distance',
+        value: `Sprint: ${detail.apt_short} | Mile: ${detail.apt_mile}
+        Medium: ${detail.apt_medium} | Long: ${detail.apt_long}`,
+        inline: true,
+      },
+      {
+        name: 'Running Style',
+        value: `Front: ${detail.apt_front} | Pace: ${detail.apt_pace} 
+        Late: ${detail.apt_late} | End: ${detail.apt_end}`,
+        inline: true,
+      },
+    );
+}
+
+export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
   const skillsByAcquisition = detail.skills.reduce<Record<string, string[]>>((acc, skill) => {
-    if (!acc[skill.acquisition]) acc[skill.acquisition] = [];
-    acc[skill.acquisition].push(skill.name);
+    const key = skill.acquisition.charAt(0).toUpperCase() + skill.acquisition.slice(1);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(skill.name);
     return acc;
   }, {});
 
@@ -50,29 +92,16 @@ export function buildEmbed(detail: UmaDetail): EmbedBuilder {
     .setURL(url)
     .setDescription(formatUmaVersion(detail.subtitle))
     .setFooter({ text: 'source: gametora' })
-    .addFields(
-      {
-        name: 'Growth',
-        value: `Speed: ${detail.growth_speed}% | Stamina: ${detail.growth_stamina}% | Power: ${detail.growth_power}% | Guts: ${detail.growth_guts}% | Wit: ${detail.growth_wit}%`,
-        inline: false,
-      },
-      {
-        name: 'Surface',
-        value: `Turf: ${detail.apt_turf} | Dirt: ${detail.apt_dirt}`,
-        inline: true,
-      },
-      {
-        name: 'Distance',
-        value: `Sprint: ${detail.apt_short} | Mile: ${detail.apt_mile} | Medium: ${detail.apt_medium} | Long: ${detail.apt_long}`,
-        inline: true,
-      },
-      {
-        name: 'Running Style',
-        value: `Front: ${detail.apt_front} | Pace: ${detail.apt_pace} | Late: ${detail.apt_late} | End: ${detail.apt_end}`,
-        inline: true,
-      },
-      ...skillFields,
-    );
+    .addFields(...skillFields);
+}
+
+export function buildPageRow(currentPage: 'details' | 'skills'): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('uma_toggle')
+      .setLabel(currentPage === 'details' ? 'View Skills' : 'View Details')
+      .setStyle(ButtonStyle.Secondary),
+  );
 }
 
 export async function execute(
@@ -95,7 +124,31 @@ export async function execute(
   if (matches.size === 1) {
     await interaction.deferReply();
     const detail = await fetchUmaById(matches.first()!.id, fetcher);
-    await interaction.editReply({ embeds: [buildEmbed(detail)] });
+
+    let currentPage: 'details' | 'skills' = 'details';
+
+    await interaction.editReply({
+      embeds: [buildDetailsEmbed(detail)],
+      components: [buildPageRow(currentPage)],
+    });
+
+    const collector = interaction.channel?.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      filter: (i) => i.customId === 'uma_toggle' && i.user.id === interaction.user.id,
+      time: 120_000,
+    });
+
+    collector?.on('collect', async (i) => {
+      currentPage = currentPage === 'details' ? 'skills' : 'details';
+      const embed =
+        currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
+      await i.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
+    });
+
+    collector?.on('end', () => {
+      interaction.editReply({ components: [] }).catch(() => undefined);
+    });
+
     return;
   }
 
@@ -129,7 +182,30 @@ export async function execute(
   collector?.on('collect', async (i) => {
     await i.deferUpdate();
     const detail = await fetchUmaById(Number(i.values[0]), fetcher);
-    await interaction.editReply({ content: '', components: [], embeds: [buildEmbed(detail)] });
+    let currentPage: 'details' | 'skills' = 'details';
+
+    await interaction.editReply({
+      content: '',
+      components: [buildPageRow(currentPage)],
+      embeds: [buildDetailsEmbed(detail)],
+    });
+
+    const toggleCollector = interaction.channel?.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      filter: (j) => j.customId === 'uma_toggle' && j.user.id === interaction.user.id,
+      time: 120_000,
+    });
+
+    toggleCollector?.on('collect', async (j) => {
+      currentPage = currentPage === 'details' ? 'skills' : 'details';
+      const embed =
+        currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
+      await j.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
+    });
+
+    toggleCollector?.on('end', () => {
+      interaction.editReply({ components: [] }).catch(() => undefined);
+    });
   });
 
   collector?.on('end', async (collected) => {
