@@ -1,0 +1,47 @@
+export const CATEGORIES = [
+  'green',
+  'recovery',
+  'velocity',
+  'acceleration',
+  'movement',
+  'gate',
+  'vision',
+  'speed_debuff',
+  'accel_debuff',
+  'frenzy_debuff',
+  'stamina_drain',
+  'vision_debuff',
+  'purple',
+  'scenario',
+  'unique',
+  'unique_recovery',
+  //'zenkai', Uncomment to enable JP-only skills
+];
+export const EFFECT_TYPES = [
+  'Speed Stat Up',
+  'Stamina Stat Up',
+  'Power Stat Up',
+  'Guts Stat Up',
+  'Wit Stat Up',
+  'All Stats Up',
+  'Increase Current Speed',
+  'Decrease Current Speed',
+  'Increase Target Speed',
+  //'Zenkai Spurt Acceleration', Uncomment to enable JP-only skills
+  'Increase Acceleration',
+  'Stamina Recovery',
+  'Increase Field of View',
+  'Increase Lane Movement Speed',
+  'Change Lane',
+  'Start Reaction Improvement',
+  'Start Delay Added',
+  'Increase Rush Time',
+  'Decrease Rush Chance',
+  'Use Random Rare Skills',
+  'Evolved Skill Duration Up',
+  'Runaway',
+  'Debuff Immunity',
+  'Activate Related Skills on All Uma',
+];
+
+export const RARITIES = ['normal', 'rare', 'unique'];
