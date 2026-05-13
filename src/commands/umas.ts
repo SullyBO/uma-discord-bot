@@ -87,7 +87,7 @@ export function buildEmbed(
     .map(([k, v]) => `${k}: ${v}`)
     .join(' | ');
 
-  const title = filterSummary ? `Umamusume — ${filterSummary}` : 'Umamusume';
+  const title = filterSummary ? `Umamusume - ${filterSummary}` : 'Umamusume';
 
   return new EmbedBuilder()
     .setTitle(title)

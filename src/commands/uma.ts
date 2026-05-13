@@ -46,20 +46,17 @@ export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
       },
       {
         name: 'Surface',
-        value: `Turf: ${detail.apt_turf}
-        Dirt: ${detail.apt_dirt}`,
+        value: `Turf: ${detail.apt_turf}\nDirt: ${detail.apt_dirt}`,
         inline: true,
       },
       {
         name: 'Distance',
-        value: `Sprint: ${detail.apt_short} | Mile: ${detail.apt_mile}
-        Medium: ${detail.apt_medium} | Long: ${detail.apt_long}`,
+        value: `Sprint: ${detail.apt_short} | Mile: ${detail.apt_mile}\nMedium: ${detail.apt_medium} | Long: ${detail.apt_long}`,
         inline: true,
       },
       {
         name: 'Running Style',
-        value: `Front: ${detail.apt_front} | Pace: ${detail.apt_pace} 
-        Late: ${detail.apt_late} | End: ${detail.apt_end}`,
+        value: `Front: ${detail.apt_front} | Pace: ${detail.apt_pace}\nLate: ${detail.apt_late} | End: ${detail.apt_end}`,
         inline: true,
       },
     );
