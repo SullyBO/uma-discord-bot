@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 import { fetchSkills, Fetcher } from '../api/client';
 import { SkillSummary } from '../types';
+import { CATEGORIES, EFFECT_TYPES, RARITIES } from '../constants/skills';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -42,6 +43,22 @@ export function buildParams(interaction: ChatInputCommandInteraction): Record<st
   const category = interaction.options.getString('category');
   const rarity = interaction.options.getString('rarity');
   const effect_type = interaction.options.getString('effect_type');
+
+  if (rarity && !RARITIES.includes(rarity.toLowerCase())) {
+    throw new Error(`"${rarity}" isn't a valid rarity. Valid options are: ${RARITIES.join(', ')}`);
+  }
+
+  if (category && !CATEGORIES.includes(category.toLowerCase())) {
+    throw new Error(
+      `"${category}" isn't a valid category. Valid options are:\n${CATEGORIES.map((c) => `• ${c}`).join('\n')}`,
+    );
+  }
+
+  if (effect_type && !EFFECT_TYPES.includes(effect_type.toLowerCase())) {
+    throw new Error(
+      `"${effect_type}" isn't a valid effect type. Valid options are: ${EFFECT_TYPES.join(', ')}`,
+    );
+  }
 
   if (category) params.category = category.toLowerCase();
   if (rarity) params.rarity = rarity.toLowerCase();
@@ -79,7 +96,7 @@ export function buildEmbed(
     .map(([k, v]) => `${k}: ${v}`)
     .join(' | ');
 
-  const title = filterSummary ? `Skills — ${filterSummary}` : 'Skills';
+  const title = filterSummary ? `Skills - ${filterSummary}` : 'Skills';
 
   return new EmbedBuilder()
     .setTitle(title)
@@ -103,8 +120,14 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
 }
 
 export async function execute(interaction: ChatInputCommandInteraction, fetcher: Fetcher = fetch) {
-  const params = buildParams(interaction);
   const userId = interaction.user.id;
+  let params: Record<string, string>;
+  try {
+    params = buildParams(interaction);
+  } catch (e) {
+    await interaction.reply({ content: (e as Error).message, ephemeral: true });
+    return;
+  }
 
   await interaction.deferReply();
 
