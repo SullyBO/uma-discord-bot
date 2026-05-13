@@ -35,8 +35,9 @@ export function buildEmbed(topic: HelpTopic): EmbedBuilder {
         );
     }
     case 'effect types': {
-      const left = EFFECT_TYPES.slice(0, 12);
-      const right = EFFECT_TYPES.slice(12);
+      const capitalize = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+      const left = EFFECT_TYPES.slice(0, 12).map(capitalize);
+      const right = EFFECT_TYPES.slice(12).map(capitalize);
       return new EmbedBuilder()
         .setTitle('Effect Types')
         .addFields(

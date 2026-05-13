@@ -118,7 +118,7 @@ describe('buildEmbed', () => {
 
   it('includes filter summary in title', () => {
     const embed = buildEmbed('page content', 0, 1, { category: 'velocity' });
-    expect(embed.toJSON().title).toBe('Skills — category: velocity');
+    expect(embed.toJSON().title).toBe('Skills - category: velocity');
   });
 
   it('excludes is_jp_only from title', () => {

@@ -54,7 +54,7 @@ describe('buildEmbed', () => {
 
     it('right field contains last effect type', () => {
       const fields = buildEmbed('effect types').toJSON().fields ?? [];
-      expect(fields[1].value).toContain('Activate Related Skills on All Uma');
+      expect(fields[1].value).toContain('Activate Related Skills On All Uma');
     });
   });
 });
