@@ -92,28 +92,25 @@ export async function execute(
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-  await interaction.reply({
+  const reply = await interaction.reply({
     content: `Multiple skills matched "${query}". Please select one:`,
     components: [row],
     flags: MessageFlags.Ephemeral,
+    fetchReply: true,
   });
 
-  const collector = interaction.channel?.createMessageComponentCollector({
-    componentType: ComponentType.StringSelect,
-    filter: (i) => i.customId === 'skill_select' && i.user.id === interaction.user.id,
-    time: 60_000,
-    max: 1,
-  });
+  try {
+    const i = await reply.awaitMessageComponent({
+      componentType: ComponentType.StringSelect,
+      filter: (i) => i.customId === 'skill_select' && i.user.id === interaction.user.id,
+      time: 60_000,
+    });
 
-  collector?.on('collect', async (i) => {
     await i.deferUpdate();
     const detail = await fetchSkillById(Number(i.values[0]), fetcher);
-    await interaction.editReply({ content: '', components: [], embeds: [buildEmbed(detail)] });
-  });
-
-  collector?.on('end', async (collected) => {
-    if (collected.size === 0) {
-      await interaction.editReply({ content: 'Timed out.', components: [] });
-    }
-  });
+    await interaction.deleteReply();
+    await interaction.followUp({ embeds: [buildEmbed(detail)] });
+  } catch {
+    await interaction.editReply({ content: 'Timed out.', components: [] });
+  }
 }

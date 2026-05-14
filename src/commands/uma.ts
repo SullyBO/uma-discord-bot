@@ -101,6 +101,30 @@ export function buildPageRow(currentPage: 'details' | 'skills'): ActionRowBuilde
   );
 }
 
+async function attachToggleCollector(
+  interaction: ChatInputCommandInteraction,
+  detail: UmaDetail,
+): Promise<void> {
+  const message = await interaction.fetchReply();
+  let currentPage: 'details' | 'skills' = 'details';
+
+  const collector = message.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    filter: (i) => i.customId === 'uma_toggle' && i.user.id === interaction.user.id,
+    time: 120_000,
+  });
+
+  collector.on('collect', async (i) => {
+    currentPage = currentPage === 'details' ? 'skills' : 'details';
+    const embed = currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
+    await i.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
+  });
+
+  collector.on('end', () => {
+    interaction.editReply({ components: [] }).catch(() => undefined);
+  });
+}
+
 export async function execute(
   interaction: ChatInputCommandInteraction,
   cache: Collection<number, UmaIndex> = umaCache,
@@ -121,31 +145,11 @@ export async function execute(
   if (matches.size === 1) {
     await interaction.deferReply();
     const detail = await fetchUmaById(matches.first()!.id, fetcher);
-
-    let currentPage: 'details' | 'skills' = 'details';
-
     await interaction.editReply({
       embeds: [buildDetailsEmbed(detail)],
-      components: [buildPageRow(currentPage)],
+      components: [buildPageRow('details')],
     });
-
-    const collector = interaction.channel?.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      filter: (i) => i.customId === 'uma_toggle' && i.user.id === interaction.user.id,
-      time: 120_000,
-    });
-
-    collector?.on('collect', async (i) => {
-      currentPage = currentPage === 'details' ? 'skills' : 'details';
-      const embed =
-        currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
-      await i.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
-    });
-
-    collector?.on('end', () => {
-      interaction.editReply({ components: [] }).catch(() => undefined);
-    });
-
+    await attachToggleCollector(interaction, detail);
     return;
   }
 
@@ -163,51 +167,29 @@ export async function execute(
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-  await interaction.reply({
+  const reply = await interaction.reply({
     content: `Multiple umamusume found for "${query}":`,
     components: [row],
     flags: MessageFlags.Ephemeral,
+    fetchReply: true,
   });
 
-  const collector = interaction.channel?.createMessageComponentCollector({
-    componentType: ComponentType.StringSelect,
-    filter: (i) => i.customId === 'uma_select' && i.user.id === interaction.user.id,
-    time: 30_000,
-    max: 1,
-  });
+  try {
+    const i = await reply.awaitMessageComponent({
+      componentType: ComponentType.StringSelect,
+      filter: (i) => i.customId === 'uma_select' && i.user.id === interaction.user.id,
+      time: 30_000,
+    });
 
-  collector?.on('collect', async (i) => {
     await i.deferUpdate();
     const detail = await fetchUmaById(Number(i.values[0]), fetcher);
-    let currentPage: 'details' | 'skills' = 'details';
-
     await interaction.editReply({
       content: '',
-      components: [buildPageRow(currentPage)],
+      components: [buildPageRow('details')],
       embeds: [buildDetailsEmbed(detail)],
     });
-
-    const toggleCollector = interaction.channel?.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      filter: (j) => j.customId === 'uma_toggle' && j.user.id === interaction.user.id,
-      time: 120_000,
-    });
-
-    toggleCollector?.on('collect', async (j) => {
-      currentPage = currentPage === 'details' ? 'skills' : 'details';
-      const embed =
-        currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
-      await j.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
-    });
-
-    toggleCollector?.on('end', () => {
-      interaction.editReply({ components: [] }).catch(() => undefined);
-    });
-  });
-
-  collector?.on('end', async (collected) => {
-    if (collected.size === 0) {
-      await interaction.editReply({ content: 'Timed out.', components: [] });
-    }
-  });
+    await attachToggleCollector(interaction, detail);
+  } catch {
+    await interaction.editReply({ content: 'Timed out.', components: [] });
+  }
 }
