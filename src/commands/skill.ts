@@ -104,12 +104,14 @@ export async function execute(
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-  const reply = await interaction.reply({
+  const { resource } = await interaction.reply({
     content: `Multiple skills matched "${query}". Please select one:`,
     components: [row],
     flags: MessageFlags.Ephemeral,
-    fetchReply: true,
+    withResponse: true,
   });
+
+  const reply = resource!.message!;
 
   try {
     const i = await reply.awaitMessageComponent({

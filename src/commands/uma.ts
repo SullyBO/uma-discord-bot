@@ -168,12 +168,14 @@ export async function execute(
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-  const reply = await interaction.reply({
-    content: `Multiple umamusume found for "${query}":`,
+  const { resource } = await interaction.reply({
+    content: `Multiple umamusume found for "${query}". Please select one:`,
     components: [row],
     flags: MessageFlags.Ephemeral,
-    fetchReply: true,
+    withResponse: true,
   });
+
+  const reply = resource!.message!;
 
   try {
     const i = await reply.awaitMessageComponent({
