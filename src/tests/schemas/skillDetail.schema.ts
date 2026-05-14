@@ -13,6 +13,7 @@ export const skillDetailSchema = {
         type: 'object',
         properties: {
           id: { type: 'number' },
+          duration: { type: ['number', 'null'] },
           effects: {
             type: 'array',
             items: {
@@ -54,7 +55,7 @@ export const skillDetailSchema = {
             },
           },
         },
-        required: ['id', 'effects', 'conditions', 'preconditions'],
+        required: ['id', 'duration', 'effects', 'conditions', 'preconditions'],
         additionalProperties: false,
       },
     },

@@ -79,6 +79,7 @@ export interface SkillEffect {
 
 export interface SkillTrigger {
   id: number;
+  duration: number | null;
   effects: SkillEffect[];
   conditions: SkillCondition[];
   preconditions: SkillCondition[];

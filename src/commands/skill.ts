@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import { fetchSkillById, Fetcher } from '../api/client';
 import { skillCache } from '../cache';
-import { SkillDetail, SkillIndex } from '../types';
+import { SkillCondition, SkillDetail, SkillIndex } from '../types';
 import { formatOperator } from '../utils';
 
 export const data = new SlashCommandBuilder()
@@ -21,21 +21,33 @@ export const data = new SlashCommandBuilder()
     option.setName('name').setDescription('The skill to look up').setRequired(true),
   );
 
+function formatConditions(conditions: SkillCondition[]): string {
+  const groups: string[][] = [];
+  for (const c of conditions) {
+    if (c.is_or || groups.length === 0) {
+      groups.push([]);
+    }
+    groups[groups.length - 1].push(`${c.cond_key} ${formatOperator(c.operator)} ${c.cond_val}`);
+  }
+  return groups.map((g) => g.join(', ')).join('.\n*alternatively:* ');
+}
+
 function buildEmbed(detail: SkillDetail): EmbedBuilder {
   const triggerLines = detail.triggers.map((t, i) => {
     const effects = t.effects
       .map((e) => (e.effect_value !== null ? `${e.effect_type}: ${e.effect_value}` : e.effect_type))
       .join(', ');
 
-    const conditions = t.conditions
-      .map((c) => `${c.cond_key} ${formatOperator(c.operator)} ${c.cond_val}`)
-      .join(', ');
+    const preconditions = formatConditions(t.preconditions);
+    const conditions = formatConditions(t.conditions);
+    const duration =
+      t.duration === null ? 'Infinite' : t.duration === 0 ? 'Instant' : `${t.duration}s`;
 
-    const preconditions = t.preconditions
-      .map((c) => `${c.cond_key} ${formatOperator(c.operator)} ${c.cond_val}`)
-      .join(', ');
-
-    const parts = [`**Trigger ${i + 1}**`, `**Effects:** ${effects || 'none'}`];
+    const parts = [
+      `**Trigger ${i + 1}**`,
+      `**Effects:** ${effects || 'none'}`,
+      `**Duration:** ${duration}`,
+    ];
     if (preconditions) parts.push(`**Preconditions:** ${preconditions}`);
     if (conditions) parts.push(`**Conditions:** ${conditions}`);
 
