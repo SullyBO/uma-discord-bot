@@ -104,8 +104,8 @@ export function buildPageRow(currentPage: 'details' | 'skills'): ActionRowBuilde
 async function attachToggleCollector(
   interaction: ChatInputCommandInteraction,
   detail: UmaDetail,
+  message: Awaited<ReturnType<typeof interaction.fetchReply>>,
 ): Promise<void> {
-  const message = await interaction.fetchReply();
   let currentPage: 'details' | 'skills' = 'details';
 
   const collector = message.createMessageComponentCollector({
@@ -149,7 +149,8 @@ export async function execute(
       embeds: [buildDetailsEmbed(detail)],
       components: [buildPageRow('details')],
     });
-    await attachToggleCollector(interaction, detail);
+    const singleMatchMessage = await interaction.fetchReply();
+    await attachToggleCollector(interaction, detail, singleMatchMessage);
     return;
   }
 
@@ -183,13 +184,17 @@ export async function execute(
 
     await i.deferUpdate();
     const detail = await fetchUmaById(Number(i.values[0]), fetcher);
-    await interaction.editReply({
-      content: '',
+    await interaction.deleteReply();
+    const followUpMessage = await interaction.followUp({
       components: [buildPageRow('details')],
       embeds: [buildDetailsEmbed(detail)],
     });
-    await attachToggleCollector(interaction, detail);
+    await attachToggleCollector(interaction, detail, followUpMessage);
   } catch {
-    await interaction.editReply({ content: 'Timed out.', components: [] });
+    try {
+      await interaction.editReply({ content: 'Timed out.', components: [] });
+    } catch {
+      await interaction.followUp({ content: 'Timed out.', flags: MessageFlags.Ephemeral });
+    }
   }
 }
