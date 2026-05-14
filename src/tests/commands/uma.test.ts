@@ -113,7 +113,7 @@ function makeInteraction(name: string) {
 
   const interaction = {
     options: { getString: vi.fn().mockReturnValue(name) },
-    reply: vi.fn().mockResolvedValue(selectReplyMessage),
+    reply: vi.fn().mockResolvedValue({ resource: { message: selectReplyMessage } }),
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
     deleteReply: vi.fn().mockResolvedValue(undefined),

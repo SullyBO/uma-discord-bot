@@ -64,7 +64,7 @@ function makeCache(entries: SkillSummary[]): Collection<number, SkillSummary> {
 function makeInteraction(name: string): ChatInputCommandInteraction {
   return {
     options: { getString: vi.fn().mockReturnValue(name) },
-    reply: vi.fn().mockResolvedValue(undefined),
+    reply: vi.fn().mockResolvedValue({ resource: { message: { awaitMessageComponent: vi.fn() } } }),
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
     deleteReply: vi.fn().mockResolvedValue(undefined),
@@ -90,7 +90,9 @@ function makeCollectorInteraction(
   const fakeMessage = {
     awaitMessageComponent: vi.fn().mockResolvedValue(selectInteraction),
   };
-  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue(fakeMessage);
+  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue({
+    resource: { message: fakeMessage },
+  });
   return { interaction, fakeMessage };
 }
 
@@ -99,7 +101,9 @@ function makeTimedOutInteraction() {
   const fakeMessage = {
     awaitMessageComponent: vi.fn().mockRejectedValue(new Error('Collector timeout')),
   };
-  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue(fakeMessage);
+  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue({
+    resource: { message: fakeMessage },
+  });
   return interaction;
 }
 
