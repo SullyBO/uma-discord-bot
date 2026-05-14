@@ -104,19 +104,33 @@ function makeFakeMessage() {
 }
 
 function makeInteraction(name: string) {
-  const { fakeMessage, fakeCollector, handlers } = makeFakeMessage();
+  const { fakeMessage: selectReplyMessage } = makeFakeMessage();
+  const { fakeMessage: singleMatchMessage, fakeCollector, handlers } = makeFakeMessage();
+
+  const followUpMessage = {
+    createMessageComponentCollector: vi.fn().mockReturnValue(fakeCollector),
+  };
 
   const interaction = {
     options: { getString: vi.fn().mockReturnValue(name) },
-    reply: vi.fn().mockResolvedValue(fakeMessage),
+    reply: vi.fn().mockResolvedValue(selectReplyMessage),
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
-    fetchReply: vi.fn().mockResolvedValue(fakeMessage),
+    deleteReply: vi.fn().mockResolvedValue(undefined),
+    followUp: vi.fn().mockResolvedValue(followUpMessage),
+    fetchReply: vi.fn().mockResolvedValue(singleMatchMessage),
     deferred: false,
     user: { id: 'user-123' },
   } as unknown as ChatInputCommandInteraction;
 
-  return { interaction, fakeMessage, fakeCollector, handlers };
+  return {
+    interaction,
+    selectReplyMessage,
+    singleMatchMessage,
+    followUpMessage,
+    fakeCollector,
+    handlers,
+  };
 }
 
 const cache = makeCache([
@@ -211,8 +225,8 @@ describe('execute', () => {
   });
 
   it('shows select menu on multiple matches', async () => {
-    const { interaction, fakeMessage } = makeInteraction('special');
-    fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+    const { interaction, selectReplyMessage } = makeInteraction('special');
+    selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
     await execute(interaction, cache, makeFetcher(mockUmaDetail));
     expect(interaction.reply).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -224,24 +238,24 @@ describe('execute', () => {
 
   describe('single match toggle collector', () => {
     it('scopes collector to the reply message, not the channel', async () => {
-      const { interaction, fakeMessage } = makeInteraction('suzuka');
+      const { interaction, singleMatchMessage } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(fakeMessage.createMessageComponentCollector).toHaveBeenCalled();
+      expect(singleMatchMessage.createMessageComponentCollector).toHaveBeenCalled();
     });
 
     it('ignores toggle interactions from other users', async () => {
-      const { interaction, fakeMessage } = makeInteraction('suzuka');
+      const { interaction, singleMatchMessage } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = singleMatchMessage.createMessageComponentCollector.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'uma_toggle', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores toggle interactions with wrong customId', async () => {
-      const { interaction, fakeMessage } = makeInteraction('suzuka');
+      const { interaction, singleMatchMessage } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = singleMatchMessage.createMessageComponentCollector.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
@@ -273,39 +287,40 @@ describe('execute', () => {
 
   describe('select collector', () => {
     it('ignores interactions from other users', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.awaitMessageComponent.mock.calls[0][0] as {
+      const { filter } = selectReplyMessage.awaitMessageComponent.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'uma_select', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores interactions with wrong customId', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.awaitMessageComponent.mock.calls[0][0] as {
+      const { filter } = selectReplyMessage.awaitMessageComponent.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
-    it('fetches and edits reply when user selects an option', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
+    it('deletes ephemeral reply and follows up publicly on selection', async () => {
+      const { interaction, selectReplyMessage } = makeInteraction('special');
       const selectInteraction = makeSelectInteraction();
-      fakeMessage.awaitMessageComponent.mockResolvedValue(selectInteraction);
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(selectInteraction);
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       expect(selectInteraction.deferUpdate).toHaveBeenCalled();
-      expect(interaction.editReply).toHaveBeenCalledWith(
+      expect(interaction.deleteReply).toHaveBeenCalled();
+      expect(interaction.followUp).toHaveBeenCalledWith(
         expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }),
       );
     });
 
     it('edits reply with timeout message when awaitMessageComponent times out', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockRejectedValue(new Error('Collector timeout'));
+      const { interaction, selectReplyMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockRejectedValue(new Error('Collector timeout'));
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       expect(interaction.editReply).toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Timed out.', components: [] }),
@@ -313,45 +328,44 @@ describe('execute', () => {
     });
 
     it('does not time out when user makes a selection', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       expect(interaction.editReply).not.toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Timed out.' }),
       );
     });
 
-    it('scopes toggle collector to the reply message after selection', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+    it('scopes toggle collector to the follow-up message after selection', async () => {
+      const { interaction, selectReplyMessage, followUpMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(interaction.fetchReply).toHaveBeenCalled();
-      expect(fakeMessage.createMessageComponentCollector).toHaveBeenCalled();
+      expect(followUpMessage.createMessageComponentCollector).toHaveBeenCalled();
     });
 
     it('ignores toggle interactions from other users after selection', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage, followUpMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = followUpMessage.createMessageComponentCollector.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'uma_toggle', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores toggle interactions with wrong customId after selection', async () => {
-      const { interaction, fakeMessage } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage, followUpMessage } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = followUpMessage.createMessageComponentCollector.mock.calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
       expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
     it('toggles to skills page after selecting from menu', async () => {
-      const { interaction, fakeMessage, handlers } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage, handlers } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
 
       const buttonInteraction = {
@@ -367,8 +381,8 @@ describe('execute', () => {
     });
 
     it('removes components when toggle collector ends after selection', async () => {
-      const { interaction, fakeMessage, handlers } = makeInteraction('special');
-      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      const { interaction, selectReplyMessage, handlers } = makeInteraction('special');
+      selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       await handlers['end'](undefined);
       expect(interaction.editReply).toHaveBeenCalledWith({ components: [] });
