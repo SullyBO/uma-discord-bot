@@ -64,10 +64,40 @@ function makeInteraction(name: string): ChatInputCommandInteraction {
     reply: vi.fn().mockResolvedValue(undefined),
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
+    deleteReply: vi.fn().mockResolvedValue(undefined),
+    followUp: vi.fn().mockResolvedValue(undefined),
     deferred: false,
     user: { id: 'user-123' },
-    channel: null,
   } as unknown as ChatInputCommandInteraction;
+}
+
+function makeSelectComponentInteraction(valueId: string = '1') {
+  return {
+    customId: 'skill_select',
+    user: { id: 'user-123' },
+    values: [valueId],
+    deferUpdate: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
+function makeCollectorInteraction(
+  selectInteraction: ReturnType<typeof makeSelectComponentInteraction>,
+) {
+  const interaction = makeInteraction('speed');
+  const fakeMessage = {
+    awaitMessageComponent: vi.fn().mockResolvedValue(selectInteraction),
+  };
+  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue(fakeMessage);
+  return { interaction, fakeMessage };
+}
+
+function makeTimedOutInteraction() {
+  const interaction = makeInteraction('speed');
+  const fakeMessage = {
+    awaitMessageComponent: vi.fn().mockRejectedValue(new Error('Collector timeout')),
+  };
+  (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue(fakeMessage);
+  return interaction;
 }
 
 describe('execute', () => {
@@ -104,6 +134,7 @@ describe('execute', () => {
       }),
     );
   });
+
   it('shows "none" for effects when trigger has no effects', async () => {
     const interaction = makeInteraction('stamina');
     const detail = mockSkillDetail({
@@ -125,49 +156,27 @@ describe('execute', () => {
   });
 
   describe('collector', () => {
-    function makeCollectorInteraction() {
-      const handlers: Record<string, (arg: unknown) => Promise<void>> = {};
-      const mockCollector = {
-        on: vi.fn((event: string, handler: (arg: unknown) => Promise<void>) => {
-          handlers[event] = handler;
-        }),
-      };
-      const interaction = makeInteraction('speed');
-      (interaction as unknown as Record<string, unknown>).channel = {
-        createMessageComponentCollector: vi.fn().mockReturnValue(mockCollector),
-      };
-      return { interaction, handlers, mockCollector };
-    }
+    it('defers, deletes ephemeral reply, and follows up publicly on selection', async () => {
+      const selectInteraction = makeSelectComponentInteraction('1');
+      const { interaction } = makeCollectorInteraction(selectInteraction);
 
-    it('fetches and edits reply when user selects an option', async () => {
-      const { interaction, handlers } = makeCollectorInteraction();
-      const fetcher = makeFetcher(mockSkillDetail());
-      await execute(interaction, fetcher, cache);
-
-      const selectInteraction = {
-        customId: 'skill_select',
-        user: { id: 'user-123' },
-        values: ['1'],
-        deferUpdate: vi.fn().mockResolvedValue(undefined),
-      };
-
-      await handlers['collect'](selectInteraction);
+      await execute(interaction, makeFetcher(mockSkillDetail()), cache);
 
       expect(selectInteraction.deferUpdate).toHaveBeenCalled();
-      expect(interaction.editReply).toHaveBeenCalledWith(
-        expect.objectContaining({ embeds: expect.any(Array), components: [] }),
+      expect(interaction.deleteReply).toHaveBeenCalled();
+      expect(interaction.followUp).toHaveBeenCalledWith(
+        expect.objectContaining({ embeds: expect.any(Array) }),
       );
     });
 
     it('filters out interactions from other users', async () => {
-      const { interaction } = makeCollectorInteraction();
+      const selectInteraction = makeSelectComponentInteraction();
+      const { interaction, fakeMessage } = makeCollectorInteraction(selectInteraction);
+
       await execute(interaction, makeFetcher(mockSkillDetail()), cache);
 
-      const channelMock = interaction.channel as unknown as Record<
-        string,
-        ReturnType<typeof vi.fn>
-      >;
-      const { filter } = channelMock.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = (fakeMessage.awaitMessageComponent as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
 
@@ -175,42 +184,35 @@ describe('execute', () => {
     });
 
     it('filters out interactions with wrong customId', async () => {
-      const { interaction } = makeCollectorInteraction();
+      const selectInteraction = makeSelectComponentInteraction();
+      const { interaction, fakeMessage } = makeCollectorInteraction(selectInteraction);
+
       await execute(interaction, makeFetcher(mockSkillDetail()), cache);
 
-      const channelMock = interaction.channel as unknown as Record<
-        string,
-        ReturnType<typeof vi.fn>
-      >;
-      const { filter } = channelMock.createMessageComponentCollector.mock.calls[0][0] as {
+      const { filter } = (fakeMessage.awaitMessageComponent as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as {
         filter: (i: unknown) => boolean;
       };
 
       expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
-    it('edits reply with timeout message when collector ends with no selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction();
-      await execute(interaction, makeFetcher(mockSkillDetail()), cache);
+    it('edits reply with timeout message when awaitMessageComponent times out', async () => {
+      const interaction = makeTimedOutInteraction();
 
-      await handlers['end'](new Collection());
+      await execute(interaction, makeFetcher(mockSkillDetail()), cache);
 
       expect(interaction.editReply).toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Timed out.', components: [] }),
       );
     });
 
-    it('does not edit reply with timeout when collector ends with a selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction();
+    it('does not follow up publicly when awaitMessageComponent times out', async () => {
+      const interaction = makeTimedOutInteraction();
+
       await execute(interaction, makeFetcher(mockSkillDetail()), cache);
 
-      const collected = new Collection();
-      collected.set('1', {});
-      await handlers['end'](collected);
-
-      expect(interaction.editReply).not.toHaveBeenCalledWith(
-        expect.objectContaining({ content: 'Timed out.' }),
-      );
+      expect(interaction.followUp).not.toHaveBeenCalled();
     });
   });
 });

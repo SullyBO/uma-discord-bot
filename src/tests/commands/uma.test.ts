@@ -80,18 +80,6 @@ function makeFetcher(detail: UmaDetail): Fetcher {
   } as Response);
 }
 
-function makeInteraction(name: string): ChatInputCommandInteraction {
-  return {
-    options: { getString: vi.fn().mockReturnValue(name) },
-    reply: vi.fn().mockResolvedValue(undefined),
-    deferReply: vi.fn().mockResolvedValue(undefined),
-    editReply: vi.fn().mockResolvedValue(undefined),
-    deferred: false,
-    user: { id: 'user-123' },
-    channel: null,
-  } as unknown as ChatInputCommandInteraction;
-}
-
 function makeSelectInteraction() {
   return {
     customId: 'uma_select',
@@ -101,42 +89,34 @@ function makeSelectInteraction() {
   };
 }
 
-function getFilter(interaction: ChatInputCommandInteraction, callIndex: number) {
-  const channelMock = interaction.channel as unknown as Record<string, ReturnType<typeof vi.fn>>;
-  const { filter } = channelMock.createMessageComponentCollector.mock.calls[callIndex][0] as {
-    filter: (i: unknown) => boolean;
-  };
-  return filter;
-}
-
-async function getToggleHandlers(
-  interaction: ChatInputCommandInteraction,
-  handlers: Record<string, (arg: unknown) => Promise<void>>,
-) {
-  await handlers['collect'](makeSelectInteraction());
-  const channelMock = interaction.channel as unknown as Record<string, ReturnType<typeof vi.fn>>;
-  const mockToggleCollector = channelMock.createMessageComponentCollector.mock.results[1].value;
-  const toggleHandlers: Record<string, (arg: unknown) => Promise<void>> = {};
-  mockToggleCollector.on.mock.calls.forEach(
-    ([event, handler]: [string, (arg: unknown) => Promise<void>]) => {
-      toggleHandlers[event] = handler;
-    },
-  );
-  return toggleHandlers;
-}
-
-function makeCollectorInteraction(name: string) {
-  const handlers: Record<string, (arg: unknown) => Promise<void>> = {};
-  const mockCollector = {
-    on: vi.fn((event: string, handler: (arg: unknown) => Promise<void>) => {
+function makeFakeMessage() {
+  const handlers: Record<string, (...args: unknown[]) => Promise<void>> = {};
+  const fakeCollector = {
+    on: vi.fn((event: string, handler: (...args: unknown[]) => Promise<void>) => {
       handlers[event] = handler;
     }),
   };
-  const interaction = makeInteraction(name);
-  (interaction as unknown as Record<string, unknown>).channel = {
-    createMessageComponentCollector: vi.fn().mockReturnValue(mockCollector),
+  const fakeMessage = {
+    createMessageComponentCollector: vi.fn().mockReturnValue(fakeCollector),
+    awaitMessageComponent: vi.fn(),
   };
-  return { interaction, handlers, mockCollector };
+  return { fakeMessage, fakeCollector, handlers };
+}
+
+function makeInteraction(name: string) {
+  const { fakeMessage, fakeCollector, handlers } = makeFakeMessage();
+
+  const interaction = {
+    options: { getString: vi.fn().mockReturnValue(name) },
+    reply: vi.fn().mockResolvedValue(fakeMessage),
+    deferReply: vi.fn().mockResolvedValue(undefined),
+    editReply: vi.fn().mockResolvedValue(undefined),
+    fetchReply: vi.fn().mockResolvedValue(fakeMessage),
+    deferred: false,
+    user: { id: 'user-123' },
+  } as unknown as ChatInputCommandInteraction;
+
+  return { interaction, fakeMessage, fakeCollector, handlers };
 }
 
 const cache = makeCache([
@@ -214,7 +194,7 @@ describe('buildPageRow', () => {
 
 describe('execute', () => {
   it('replies ephemerally when no match found', async () => {
-    const interaction = makeInteraction('nonexistent');
+    const { interaction } = makeInteraction('nonexistent');
     await execute(interaction, cache, makeFetcher(mockUmaDetail));
     expect(interaction.reply).toHaveBeenCalledWith(
       expect.objectContaining({ content: expect.stringContaining('No umamusume found') }),
@@ -222,7 +202,7 @@ describe('execute', () => {
   });
 
   it('defers and edits reply on single match', async () => {
-    const interaction = makeInteraction('suzuka');
+    const { interaction } = makeInteraction('suzuka');
     await execute(interaction, cache, makeFetcher(mockUmaDetail));
     expect(interaction.deferReply).toHaveBeenCalled();
     expect(interaction.editReply).toHaveBeenCalledWith(
@@ -231,7 +211,8 @@ describe('execute', () => {
   });
 
   it('shows select menu on multiple matches', async () => {
-    const interaction = makeInteraction('special');
+    const { interaction, fakeMessage } = makeInteraction('special');
+    fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
     await execute(interaction, cache, makeFetcher(mockUmaDetail));
     expect(interaction.reply).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -241,25 +222,33 @@ describe('execute', () => {
     );
   });
 
-  describe('single match collector', () => {
-    it('ignores toggle interactions from other users', async () => {
-      const { interaction } = makeCollectorInteraction('suzuka');
+  describe('single match toggle collector', () => {
+    it('scopes collector to the reply message, not the channel', async () => {
+      const { interaction, fakeMessage } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(
-        getFilter(interaction, 0)({ customId: 'uma_toggle', user: { id: 'other-user' } }),
-      ).toBe(false);
+      expect(fakeMessage.createMessageComponentCollector).toHaveBeenCalled();
+    });
+
+    it('ignores toggle interactions from other users', async () => {
+      const { interaction, fakeMessage } = makeInteraction('suzuka');
+      await execute(interaction, cache, makeFetcher(mockUmaDetail));
+      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'uma_toggle', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores toggle interactions with wrong customId', async () => {
-      const { interaction } = makeCollectorInteraction('suzuka');
+      const { interaction, fakeMessage } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(getFilter(interaction, 0)({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(
-        false,
-      );
+      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
     it('toggles to skills page on button click', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('suzuka');
+      const { interaction, handlers } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
 
       const buttonInteraction = {
@@ -275,7 +264,7 @@ describe('execute', () => {
     });
 
     it('removes components when collector ends', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('suzuka');
+      const { interaction, handlers } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       await handlers['end'](undefined);
       expect(interaction.editReply).toHaveBeenCalledWith({ components: [] });
@@ -284,84 +273,93 @@ describe('execute', () => {
 
   describe('select collector', () => {
     it('ignores interactions from other users', async () => {
-      const { interaction } = makeCollectorInteraction('special');
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(
-        getFilter(interaction, 0)({ customId: 'uma_select', user: { id: 'other-user' } }),
-      ).toBe(false);
+      const { filter } = fakeMessage.awaitMessageComponent.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'uma_select', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores interactions with wrong customId', async () => {
-      const { interaction } = makeCollectorInteraction('special');
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      expect(getFilter(interaction, 0)({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(
-        false,
-      );
+      const { filter } = fakeMessage.awaitMessageComponent.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
     it('fetches and edits reply when user selects an option', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
-      const fetcher = makeFetcher(mockUmaDetail);
-      await execute(interaction, cache, fetcher);
-
+      const { interaction, fakeMessage } = makeInteraction('special');
       const selectInteraction = makeSelectInteraction();
-      await handlers['collect'](selectInteraction);
-
+      fakeMessage.awaitMessageComponent.mockResolvedValue(selectInteraction);
+      await execute(interaction, cache, makeFetcher(mockUmaDetail));
       expect(selectInteraction.deferUpdate).toHaveBeenCalled();
       expect(interaction.editReply).toHaveBeenCalledWith(
         expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }),
       );
     });
 
-    it('edits reply with timeout message when collector ends with no selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+    it('edits reply with timeout message when awaitMessageComponent times out', async () => {
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockRejectedValue(new Error('Collector timeout'));
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      await handlers['end'](new Collection());
       expect(interaction.editReply).toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Timed out.', components: [] }),
       );
     });
 
-    it('does not edit reply with timeout when collector ends with a selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+    it('does not time out when user makes a selection', async () => {
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const collected = new Collection();
-      collected.set('1', {});
-      await handlers['end'](collected);
       expect(interaction.editReply).not.toHaveBeenCalledWith(
         expect.objectContaining({ content: 'Timed out.' }),
       );
     });
 
-    it('ignores toggle interactions from other users after selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+    it('scopes toggle collector to the reply message after selection', async () => {
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      await getToggleHandlers(interaction, handlers);
-      expect(
-        getFilter(interaction, 1)({ customId: 'uma_toggle', user: { id: 'other-user' } }),
-      ).toBe(false);
+      expect(interaction.fetchReply).toHaveBeenCalled();
+      expect(fakeMessage.createMessageComponentCollector).toHaveBeenCalled();
+    });
+
+    it('ignores toggle interactions from other users after selection', async () => {
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
+      await execute(interaction, cache, makeFetcher(mockUmaDetail));
+      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'uma_toggle', user: { id: 'other-user' } })).toBe(false);
     });
 
     it('ignores toggle interactions with wrong customId after selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+      const { interaction, fakeMessage } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      await getToggleHandlers(interaction, handlers);
-      expect(getFilter(interaction, 1)({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(
-        false,
-      );
+      const { filter } = fakeMessage.createMessageComponentCollector.mock.calls[0][0] as {
+        filter: (i: unknown) => boolean;
+      };
+      expect(filter({ customId: 'wrong_id', user: { id: 'user-123' } })).toBe(false);
     });
 
     it('toggles to skills page after selecting from menu', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+      const { interaction, fakeMessage, handlers } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const toggleHandlers = await getToggleHandlers(interaction, handlers);
 
       const buttonInteraction = {
         customId: 'uma_toggle',
         user: { id: 'user-123' },
         update: vi.fn().mockResolvedValue(undefined),
       };
-      await toggleHandlers['collect'](buttonInteraction);
+      await handlers['collect'](buttonInteraction);
 
       expect(buttonInteraction.update).toHaveBeenCalledWith(
         expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }),
@@ -369,10 +367,10 @@ describe('execute', () => {
     });
 
     it('removes components when toggle collector ends after selection', async () => {
-      const { interaction, handlers } = makeCollectorInteraction('special');
+      const { interaction, fakeMessage, handlers } = makeInteraction('special');
+      fakeMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
-      const toggleHandlers = await getToggleHandlers(interaction, handlers);
-      await toggleHandlers['end'](undefined);
+      await handlers['end'](undefined);
       expect(interaction.editReply).toHaveBeenCalledWith({ components: [] });
     });
   });
