@@ -24,18 +24,21 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
   triggers: [
     {
       id: 1,
+      duration: 5,
       effects: [{ effect_type: 'Increase Current Speed', effect_value: 0.15 }],
       conditions: [{ cond_key: 'distance_type', operator: 'eq', cond_val: '3', is_or: false }],
       preconditions: [],
     },
     {
       id: 2,
+      duration: null,
       effects: [{ effect_type: 'Debuff Immunity', effect_value: null }],
       conditions: [],
       preconditions: [],
     },
     {
       id: 3,
+      duration: 3,
       effects: [{ effect_type: 'Stamina Recovery', effect_value: null }],
       conditions: [],
       preconditions: [{ cond_key: 'phase', operator: 'gt_eq', cond_val: '2', is_or: false }],
@@ -138,7 +141,7 @@ describe('execute', () => {
   it('shows "none" for effects when trigger has no effects', async () => {
     const interaction = makeInteraction('stamina');
     const detail = mockSkillDetail({
-      triggers: [{ id: 1, effects: [], conditions: [], preconditions: [] }],
+      triggers: [{ id: 1, duration: 5, effects: [], conditions: [], preconditions: [] }],
     });
     await execute(interaction, makeFetcher(detail), cache);
     expect(interaction.editReply).toHaveBeenCalledWith(
