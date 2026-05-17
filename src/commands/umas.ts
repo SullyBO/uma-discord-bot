@@ -59,19 +59,37 @@ export function parseFilters(input: string): Record<string, string> {
 }
 
 export function formatSummary(uma: UmaSummary): string {
+  const slug = uma.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const url = `https://gametora.com/umamusume/characters/${uma.id}-${slug}`;
+
   return [
-    `**${uma.name}** — ${formatUmaVersion(uma.subtitle)}`,
-    `Surface: Turf: ${uma.apt_turf} | Dirt: ${uma.apt_dirt}`,
-    `Distance: Sprint: ${uma.apt_short} | Mile: ${uma.apt_mile} | Medium: ${uma.apt_medium} | Long: ${uma.apt_long}`,
-    `Style: Front: ${uma.apt_front} | Pace: ${uma.apt_pace} | Late: ${uma.apt_late} | End: ${uma.apt_end}`,
+    `**[${uma.name}](${url})** - ${formatUmaVersion(uma.subtitle)}`,
+    formatReleaseDate(uma),
+    `Turf: ${uma.apt_turf} | Dirt: ${uma.apt_dirt}`,
+    `Sprint: ${uma.apt_short} | Mile: ${uma.apt_mile} | Medium: ${uma.apt_medium} | Long: ${uma.apt_long}`,
+    `Front: ${uma.apt_front} | Pace: ${uma.apt_pace} | Late: ${uma.apt_late} | End: ${uma.apt_end}`,
   ].join('\n');
+}
+
+export function formatReleaseDate(uma: UmaSummary): string {
+  if (uma.is_predicted_date) {
+    const [year, month] = uma.release_date.split('-');
+    const monthName = new Date(Number(year), Number(month) - 1).toLocaleString('en', {
+      month: 'long',
+    });
+    return `Expected release: ${monthName} ${year}`;
+  }
+  return `Release date: ${uma.release_date.replace(/-/g, '/')}`;
 }
 
 export function buildPages(lines: string[]): string[] {
   const pages: string[] = [];
 
-  for (let i = 0; i < lines.length; i += 5) {
-    pages.push(lines.slice(i, i + 5).join('\n---\n'));
+  for (let i = 0; i < lines.length; i += 3) {
+    pages.push(lines.slice(i, i + 3).join('\n\n'));
   }
 
   return pages;

@@ -36,7 +36,7 @@ export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle(detail.name)
     .setURL(url)
-    .setDescription(formatUmaVersion(detail.subtitle))
+    .setDescription(formatUmaVersion(detail.subtitle) + '\n' + formatReleaseDate(detail))
     .setFooter({ text: 'source: gametora' })
     .addFields(
       {
@@ -60,6 +60,17 @@ export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
         inline: true,
       },
     );
+}
+
+export function formatReleaseDate(uma: UmaDetail): string {
+  if (uma.is_predicted_date) {
+    const [year, month] = uma.release_date.split('-');
+    const monthName = new Date(Number(year), Number(month) - 1).toLocaleString('en', {
+      month: 'long',
+    });
+    return `Expected release: ${monthName} ${year}`;
+  }
+  return `Release date: ${uma.release_date.replace(/-/g, '/')}`;
 }
 
 export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
@@ -87,7 +98,7 @@ export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle(detail.name)
     .setURL(url)
-    .setDescription(formatUmaVersion(detail.subtitle))
+    .setDescription(formatUmaVersion(detail.subtitle) + ' ' + formatReleaseDate(detail))
     .setFooter({ text: 'source: gametora' })
     .addFields(...skillFields);
 }
