@@ -5,6 +5,7 @@ import {
   ComponentType,
   EmbedBuilder,
   MessageFlags,
+  RepliableInteraction,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -32,7 +33,7 @@ function formatConditions(conditions: SkillCondition[]): string {
   return groups.map((g) => g.join(', ')).join('.\n*alternatively:* ');
 }
 
-function buildEmbed(detail: SkillDetail): EmbedBuilder {
+export function buildSkillEmbed(detail: SkillDetail): EmbedBuilder {
   const triggerLines = detail.triggers.map((t, i) => {
     const effects = t.effects
       .map((e) => (e.effect_value !== null ? `${e.effect_type}: ${e.effect_value}` : e.effect_type))
@@ -67,6 +68,15 @@ function buildEmbed(detail: SkillDetail): EmbedBuilder {
     .setFooter({ text: `src: gametora.com` });
 }
 
+export async function renderSkill(
+  interaction: RepliableInteraction,
+  skillId: number,
+  fetcher: Fetcher = fetch,
+): Promise<void> {
+  const detail = await fetchSkillById(skillId, fetcher);
+  await interaction.followUp({ embeds: [buildSkillEmbed(detail)], flags: MessageFlags.Ephemeral });
+}
+
 export async function execute(
   interaction: ChatInputCommandInteraction,
   fetcher: Fetcher = fetch,
@@ -87,7 +97,7 @@ export async function execute(
   if (matches.size === 1) {
     await interaction.deferReply();
     const detail = await fetchSkillById(matches.first()!.id, fetcher);
-    await interaction.editReply({ embeds: [buildEmbed(detail)] });
+    await interaction.editReply({ embeds: [buildSkillEmbed(detail)] });
     return;
   }
 
@@ -123,7 +133,7 @@ export async function execute(
     await i.deferUpdate();
     const detail = await fetchSkillById(Number(i.values[0]), fetcher);
     await interaction.deleteReply();
-    await interaction.followUp({ embeds: [buildEmbed(detail)] });
+    await interaction.followUp({ embeds: [buildSkillEmbed(detail)] });
   } catch {
     await interaction.editReply({ content: 'Timed out.', components: [] });
   }

@@ -15,6 +15,7 @@ import { umaCache } from '../cache';
 import { fetchUmaById, Fetcher } from '../api/client';
 import { UmaDetail, UmaIndex } from '../types';
 import { formatUmaVersion } from '../utils';
+import { renderSkill } from './skill';
 
 export const data = new SlashCommandBuilder()
   .setName('uma')
@@ -36,7 +37,7 @@ export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle(detail.name)
     .setURL(url)
-    .setDescription(formatUmaVersion(detail.subtitle) + '\n' + formatReleaseDate(detail))
+    .setDescription(formatUmaVersion(detail.subtitle) + formatReleaseDate(detail))
     .setFooter({ text: 'source: gametora' })
     .addFields(
       {
@@ -68,9 +69,9 @@ export function formatReleaseDate(uma: UmaDetail): string {
     const monthName = new Date(Number(year), Number(month) - 1).toLocaleString('en', {
       month: 'long',
     });
-    return `Expected release: ${monthName} ${year}`;
+    return `\nExpected release: ${monthName} ${year}`;
   }
-  return `Release date: ${uma.release_date.replace(/-/g, '/')}`;
+  return `\nRelease date: ${uma.release_date.replace(/-/g, '/')}`;
 }
 
 export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
@@ -104,31 +105,96 @@ export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
 }
 
 export function buildPageRow(currentPage: 'details' | 'skills'): ActionRowBuilder<ButtonBuilder> {
-  return new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('uma_toggle')
-      .setLabel(currentPage === 'details' ? 'View Skills' : 'View Details')
-      .setStyle(ButtonStyle.Secondary),
-  );
+  const toggleButton = new ButtonBuilder()
+    .setCustomId('uma_toggle')
+    .setLabel(currentPage === 'details' ? 'View Skills' : 'View Details')
+    .setStyle(ButtonStyle.Secondary);
+
+  if (currentPage === 'skills') {
+    const browseButton = new ButtonBuilder()
+      .setCustomId('uma_skill_browse')
+      .setLabel('View a Skill')
+      .setStyle(ButtonStyle.Primary);
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(toggleButton, browseButton);
+  }
+
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(toggleButton);
 }
 
 async function attachToggleCollector(
   interaction: ChatInputCommandInteraction,
   detail: UmaDetail,
   message: Awaited<ReturnType<typeof interaction.fetchReply>>,
+  fetcher: Fetcher = fetch,
 ): Promise<void> {
   let currentPage: 'details' | 'skills' = 'details';
 
+  const nonEvoSkills = Array.from(
+    new Map(
+      detail.skills
+        .filter(
+          (s) => s.acquisition.charAt(0).toUpperCase() + s.acquisition.slice(1) !== 'Evolution',
+        )
+        .map((s) => [s.id, s]),
+    ).values(),
+  );
+
   const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
-    filter: (i) => i.customId === 'uma_toggle' && i.user.id === interaction.user.id,
+    filter: (i) =>
+      (i.customId === 'uma_toggle' || i.customId === 'uma_skill_browse') &&
+      i.user.id === interaction.user.id,
     time: 120_000,
   });
 
   collector.on('collect', async (i) => {
-    currentPage = currentPage === 'details' ? 'skills' : 'details';
-    const embed = currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
-    await i.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
+    if (i.customId === 'uma_toggle') {
+      currentPage = currentPage === 'details' ? 'skills' : 'details';
+      const embed =
+        currentPage === 'details' ? buildDetailsEmbed(detail) : buildSkillsEmbed(detail);
+      await i.update({ embeds: [embed], components: [buildPageRow(currentPage)] });
+      return;
+    }
+
+    if (i.customId === 'uma_skill_browse') {
+      const options = nonEvoSkills
+        .slice(0, 25)
+        .map((skill) =>
+          new StringSelectMenuOptionBuilder().setLabel(skill.name).setValue(String(skill.id)),
+        );
+
+      const select = new StringSelectMenuBuilder()
+        .setCustomId('uma_skill_select')
+        .setPlaceholder('Select a skill')
+        .addOptions(options);
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+      const { resource } = await i.reply({
+        content: 'Select a skill to look up:',
+        components: [row],
+        flags: MessageFlags.Ephemeral,
+        withResponse: true,
+      });
+
+      const selectMessage = resource!.message!;
+
+      try {
+        const selected = await selectMessage.awaitMessageComponent({
+          componentType: ComponentType.StringSelect,
+          filter: (s) => s.customId === 'uma_skill_select' && s.user.id === interaction.user.id,
+          time: 30_000,
+        });
+
+        await selected.deferUpdate();
+        await i.deleteReply();
+        await renderSkill(selected, Number(selected.values[0]), fetcher);
+      } catch {
+        try {
+          await i.editReply({ content: 'Timed out.', components: [] });
+        } catch {}
+      }
+    }
   });
 
   collector.on('end', () => {
@@ -161,7 +227,7 @@ export async function execute(
       components: [buildPageRow('details')],
     });
     const singleMatchMessage = await interaction.fetchReply();
-    await attachToggleCollector(interaction, detail, singleMatchMessage);
+    await attachToggleCollector(interaction, detail, singleMatchMessage, fetcher);
     return;
   }
 
@@ -202,7 +268,7 @@ export async function execute(
       components: [buildPageRow('details')],
       embeds: [buildDetailsEmbed(detail)],
     });
-    await attachToggleCollector(interaction, detail, followUpMessage);
+    await attachToggleCollector(interaction, detail, followUpMessage, fetcher);
   } catch {
     try {
       await interaction.editReply({ content: 'Timed out.', components: [] });
