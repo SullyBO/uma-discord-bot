@@ -8,6 +8,7 @@ import {
   InteractionCollector,
   SlashCommandBuilder,
   ButtonInteraction,
+  MessageFlags,
 } from 'discord.js';
 import { fetchSkills, Fetcher } from '../api/client';
 import { SkillSummary } from '../types';
@@ -125,7 +126,7 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
   try {
     params = buildParams(interaction);
   } catch (e) {
-    await interaction.reply({ content: (e as Error).message, ephemeral: true });
+    await interaction.reply({ content: (e as Error).message, flags: MessageFlags.Ephemeral });
     return;
   }
 
