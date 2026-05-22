@@ -80,12 +80,14 @@ export interface SkillEffect {
 export interface SkillTrigger {
   id: number;
   duration: number | null;
+  scaling: string | null;
   effects: SkillEffect[];
   conditions: SkillCondition[];
   preconditions: SkillCondition[];
 }
 
 export interface SkillDetail extends SkillSummary {
+  ingame_description: string;
   triggers: SkillTrigger[];
 }
 

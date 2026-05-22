@@ -49,6 +49,7 @@ export function buildSkillEmbed(detail: SkillDetail): EmbedBuilder {
       `**Effects:** ${effects || 'none'}`,
       `**Duration:** ${duration}`,
     ];
+    if (t.scaling) parts.push(`**Special Scaling:** ${t.scaling}`);
     if (preconditions) parts.push(`**Preconditions:** ${preconditions}`);
     if (conditions) parts.push(`**Conditions:** ${conditions}`);
 
@@ -57,14 +58,17 @@ export function buildSkillEmbed(detail: SkillDetail): EmbedBuilder {
 
   return new EmbedBuilder()
     .setTitle(detail.name)
+    .setDescription(detail.ingame_description || null)
     .addFields(
       { name: 'Category', value: detail.category, inline: true },
       { name: 'Rarity', value: detail.rarity, inline: true },
       ...(detail.sp_cost > 0
         ? [{ name: 'SP Cost', value: String(detail.sp_cost), inline: true }]
         : []),
+      ...(triggerLines.length > 0
+        ? [{ name: '', value: triggerLines.join('\n\n'), inline: false }]
+        : []),
     )
-    .setDescription(triggerLines.join('\n\n') || 'No trigger data available.')
     .setFooter({ text: `src: gametora.com` });
 }
 

@@ -3,6 +3,7 @@ export const skillDetailSchema = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    ingame_description: { type: 'string' },
     category: { type: 'string' },
     rarity: { type: 'string' },
     sp_cost: { type: 'number' },
@@ -14,6 +15,7 @@ export const skillDetailSchema = {
         properties: {
           id: { type: 'number' },
           duration: { type: ['number', 'null'] },
+          scaling: { type: ['string', 'null'] },
           effects: {
             type: 'array',
             items: {
@@ -55,11 +57,20 @@ export const skillDetailSchema = {
             },
           },
         },
-        required: ['id', 'duration', 'effects', 'conditions', 'preconditions'],
+        required: ['id', 'duration', 'scaling', 'effects', 'conditions', 'preconditions'],
         additionalProperties: false,
       },
     },
   },
-  required: ['id', 'name', 'category', 'rarity', 'sp_cost', 'is_jp_only', 'triggers'],
+  required: [
+    'id',
+    'name',
+    'ingame_description',
+    'category',
+    'rarity',
+    'sp_cost',
+    'is_jp_only',
+    'triggers',
+  ],
   additionalProperties: false,
 };
