@@ -15,6 +15,7 @@ import * as skillsCommand from './commands/skills';
 import * as helpCommand from './commands/help';
 import * as cmCommand from './commands/cm';
 import * as cardCommand from './commands/card';
+import * as cardsCommand from './commands/cards';
 
 dotenvFlow.config();
 
@@ -29,6 +30,7 @@ commands.set(skillsCommand.data.name, skillsCommand);
 commands.set(helpCommand.data.name, helpCommand);
 commands.set(cmCommand.data.name, cmCommand);
 commands.set(cardCommand.data.name, cardCommand);
+commands.set(cardsCommand.data.name, cardsCommand);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],

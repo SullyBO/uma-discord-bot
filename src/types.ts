@@ -122,6 +122,9 @@ export interface CardIndex {
   title: string;
   card_type: string;
   rarity: string;
+  is_welfare: boolean;
+  release_date: string | null;
+  is_predicted_date: boolean;
 }
 
 export interface CardEffect {
