@@ -73,13 +73,14 @@ export function formatSummary(skill: SkillSummary): string {
   return [
     `**${skill.name}**`,
     `Category: ${skill.category} | Rarity: ${skill.rarity}${costPart}`,
+    skill.ingame_description,
   ].join('\n');
 }
 
 export function buildPages(lines: string[]): string[] {
   const pages: string[] = [];
-  for (let i = 0; i < lines.length; i += 5) {
-    pages.push(lines.slice(i, i + 5).join('\n---\n'));
+  for (let i = 0; i < lines.length; i += 4) {
+    pages.push(lines.slice(i, i + 4).join('\n---\n'));
   }
   return pages;
 }

@@ -59,6 +59,7 @@ export interface UmaSummary {
 export interface SkillSummary {
   id: number;
   name: string;
+  ingame_description: string;
   category: string;
   rarity: string;
   sp_cost: number;
