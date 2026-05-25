@@ -86,7 +86,7 @@ export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
     (acquisition) => skillsByAcquisition[acquisition],
   ).map((acquisition) => ({
     name: acquisition,
-    value: `\`\`\`${skillsByAcquisition[acquisition].join(' · ')}\`\`\``,
+    value: `\`\`\`${skillsByAcquisition[acquisition].join(' - ')}\`\`\``,
     inline: false,
   }));
 
