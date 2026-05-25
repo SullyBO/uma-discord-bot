@@ -84,15 +84,15 @@ describe('formatSummary', () => {
 });
 
 describe('buildPages', () => {
-  it('groups lines into pages of 5', () => {
+  it('groups lines into pages of 4', () => {
     const lines = Array.from({ length: 12 }, (_, i) => `line ${i}`);
     const pages = buildPages(lines);
-    expect(pages).toHaveLength(3);
+    expect(pages).toHaveLength(4);
   });
 
-  it('joins lines with separator', () => {
+  it('joins lines with newlines', () => {
     const pages = buildPages(['a', 'b']);
-    expect(pages[0]).toContain('---');
+    expect(pages[0]).toContain('a\n\nb');
   });
 });
 

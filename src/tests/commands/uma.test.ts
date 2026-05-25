@@ -149,7 +149,7 @@ describe('buildDetailsEmbed', () => {
 
   it('capitalizes the subtitle in description', () => {
     const embed = buildDetailsEmbed(mockUmaDetail);
-    expect(embed.toJSON().description).toBe('A promising newcomer');
+    expect(embed.toJSON().description).toBe('A promising newcomer\nRelease date: 2025/06/26');
   });
 
   it('includes growth field', () => {

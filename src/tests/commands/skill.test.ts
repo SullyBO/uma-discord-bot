@@ -21,6 +21,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
   rarity: 'normal',
   sp_cost: 50,
   is_jp_only: false,
+  ingame_description: 'Increases speed for a short duration.',
   triggers: [
     {
       id: 1,
@@ -28,6 +29,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
       effects: [{ effect_type: 'Increase Current Speed', effect_value: 0.15 }],
       conditions: [{ cond_key: 'distance_type', operator: 'eq', cond_val: '3', is_or: false }],
       preconditions: [],
+      scaling: null,
     },
     {
       id: 2,
@@ -35,6 +37,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
       effects: [{ effect_type: 'Debuff Immunity', effect_value: null }],
       conditions: [],
       preconditions: [],
+      scaling: null,
     },
     {
       id: 3,
@@ -42,6 +45,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
       effects: [{ effect_type: 'Stamina Recovery', effect_value: null }],
       conditions: [],
       preconditions: [{ cond_key: 'phase', operator: 'gt_eq', cond_val: '2', is_or: false }],
+      scaling: null,
     },
   ],
   ...overrides,
@@ -145,7 +149,9 @@ describe('execute', () => {
   it('shows "none" for effects when trigger has no effects', async () => {
     const interaction = makeInteraction('stamina');
     const detail = mockSkillDetail({
-      triggers: [{ id: 1, duration: 5, effects: [], conditions: [], preconditions: [] }],
+      triggers: [
+        { id: 1, duration: 5, effects: [], conditions: [], preconditions: [], scaling: null },
+      ],
     });
     await execute(interaction, makeFetcher(detail), cache);
     expect(interaction.editReply).toHaveBeenCalledWith(
