@@ -4,10 +4,21 @@ import { umaSummarySchema } from '../tests/schemas/umaSummary.schema';
 import { skillSummarySchema } from '../tests/schemas/skillSummary.schema';
 import { skillDetailSchema } from '../tests/schemas/skillDetail.schema';
 import { skillIndexSchema } from '../tests/schemas/skillIndex.schema';
-import { UmaDetail, UmaIndex, UmaSummary, SkillSummary, SkillDetail, SkillIndex } from '../types';
+import {
+  UmaDetail,
+  UmaIndex,
+  UmaSummary,
+  SkillSummary,
+  SkillDetail,
+  SkillIndex,
+  CardDetail,
+  CardIndex,
+} from '../types';
 import { logRequest } from '../utils';
 
 import Ajv, { Schema } from 'ajv';
+import { cardDetailSchema } from '../tests/schemas/cardDetail.schema';
+import { cardIndexSchema } from '../tests/schemas/cardIndex.schema';
 
 const ajv = new Ajv();
 
@@ -77,4 +88,12 @@ export async function fetchSkills(
 
 export async function fetchSkillById(id: number, fetcher: Fetcher = fetch): Promise<SkillDetail> {
   return apiFetch<SkillDetail>(`/skills/${id}`, skillDetailSchema, fetcher);
+}
+
+export async function fetchCardIndex(fetcher: Fetcher = fetch): Promise<CardIndex[]> {
+  return apiFetch<CardIndex[]>('/cards/index', cardIndexSchema, fetcher);
+}
+
+export async function fetchCardById(id: number, fetcher: Fetcher = fetch): Promise<CardDetail> {
+  return apiFetch<CardDetail>(`/cards/${id}`, cardDetailSchema, fetcher);
 }

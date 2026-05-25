@@ -115,3 +115,39 @@ export interface SkillIndex {
   id: number;
   name: string;
 }
+
+export interface CardIndex {
+  support_id: number;
+  char_name: string;
+  title: string;
+  card_type: string;
+  rarity: string;
+}
+
+export interface CardEffect {
+  effect_name: string;
+  lb0: number | null;
+  lb1: number | null;
+  lb2: number | null;
+  lb3: number | null;
+  mlb: number | null;
+}
+
+export interface CardSkill {
+  skill_id: number;
+  acquisition: string;
+}
+
+export interface CardDetail {
+  support_id: number;
+  char_name: string;
+  title: string;
+  card_type: string;
+  rarity: string;
+  is_welfare: boolean;
+  release_date: string | null;
+  is_predicted_date: boolean;
+  unique_effect: string | null;
+  effects: CardEffect[];
+  skills: CardSkill[];
+}

@@ -27,3 +27,11 @@ export function logRequest(path: string, status: number, ms: number, outcome: Lo
   const arrow = outcome === 'ok' ? '→' : '✗';
   console.log(`[${timestamp}] apiFetch GET ${path} ${arrow} ${status} (${ms}ms)`);
 }
+
+export function formatCardType(cardType: string): string {
+  return cardType.charAt(0).toUpperCase() + cardType.slice(1);
+}
+
+export function formatRarity(rarity: string): string {
+  return rarity.toUpperCase();
+}
