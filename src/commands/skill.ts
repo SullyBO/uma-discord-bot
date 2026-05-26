@@ -129,7 +129,7 @@ function buildAcquisitionFields(
   return fields;
 }
 
-function buildSkillDetailEmbed(detail: SkillDetail): EmbedBuilder {
+export function buildSkillDetailEmbed(detail: SkillDetail): EmbedBuilder {
   const triggerLines = detail.triggers.map((t, i) => {
     const effects = t.effects
       .map((e) => (e.effect_value !== null ? `${e.effect_type}: ${e.effect_value}` : e.effect_type))
@@ -168,7 +168,7 @@ function buildSkillDetailEmbed(detail: SkillDetail): EmbedBuilder {
     .setFooter({ text: 'src: gametora.com | Detail page' });
 }
 
-function buildSkillAcquisitionsEmbed(
+export function buildSkillAcquisitionsEmbed(
   detail: SkillDetail,
   umas: Collection<number, UmaIndex>,
   cards: Collection<number, CardIndex>,
@@ -190,7 +190,7 @@ function buildSkillEmbed(
   return buildSkillDetailEmbed(detail);
 }
 
-function buildSkillPageButton(page: SkillPage): ActionRowBuilder<ButtonBuilder> {
+export function buildSkillPageButton(page: SkillPage): ActionRowBuilder<ButtonBuilder> {
   const button =
     page === 'detail'
       ? new ButtonBuilder()
