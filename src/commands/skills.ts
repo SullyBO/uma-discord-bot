@@ -9,11 +9,14 @@ import {
   SlashCommandBuilder,
   ButtonInteraction,
   MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import { fetchSkills, Fetcher } from '../api/client';
 import { SkillSummary } from '../types';
 import { CATEGORIES, EFFECT_TYPES, RARITIES } from '../constants/skills';
 import { capitalize } from '../utils';
+import { renderSkill } from './skill';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -119,6 +122,10 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
       .setLabel('▶')
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(pageIndex === totalPages - 1),
+    new ButtonBuilder()
+      .setCustomId('skills_view')
+      .setLabel('View a Skill')
+      .setStyle(ButtonStyle.Primary),
   );
 }
 
@@ -161,7 +168,10 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: ComponentType.Button,
     filter: (i) =>
-      (i.customId === 'skills_prev' || i.customId === 'skills_next') && i.user.id === userId,
+      (i.customId === 'skills_prev' ||
+        i.customId === 'skills_next' ||
+        i.customId === 'skills_view') &&
+      i.user.id === userId,
     time: 120_000,
   });
 
@@ -171,6 +181,47 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
     collector.on('collect', async (i) => {
       if (i.customId === 'skills_prev') pageIndex = Math.max(0, pageIndex - 1);
       if (i.customId === 'skills_next') pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+
+      if (i.customId === 'skills_view') {
+        const pageSkills = skills.slice(pageIndex * 4, pageIndex * 4 + 4);
+
+        const select = new StringSelectMenuBuilder()
+          .setCustomId('skills_view_select')
+          .setPlaceholder('Select a skill')
+          .addOptions(
+            pageSkills.map((skill) =>
+              new StringSelectMenuOptionBuilder().setLabel(skill.name).setValue(String(skill.id)),
+            ),
+          );
+
+        const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+        const { resource } = await i.reply({
+          content: 'Select a skill to look up:',
+          components: [selectRow],
+          flags: MessageFlags.Ephemeral,
+          withResponse: true,
+        });
+
+        const selectMessage = resource!.message!;
+
+        try {
+          const selected = await selectMessage.awaitMessageComponent({
+            componentType: ComponentType.StringSelect,
+            filter: (s) => s.customId === 'skills_view_select' && s.user.id === userId,
+            time: 30_000,
+          });
+
+          await selected.deferUpdate();
+          await i.deleteReply();
+          await renderSkill(selected, Number(selected.values[0]), fetcher);
+        } catch {
+          try {
+            await i.editReply({ content: 'Timed out.', components: [] });
+          } catch {}
+        }
+        return;
+      }
 
       await i.update({
         embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, params)],
