@@ -87,8 +87,19 @@ export interface SkillTrigger {
   preconditions: SkillCondition[];
 }
 
+export interface InheritedSkill {
+  id: number;
+  name: string;
+  ingame_description: string;
+  category: string;
+  rarity: string;
+  sp_cost: number;
+  triggers: SkillTrigger[];
+}
+
 export interface SkillDetail extends SkillSummary {
   ingame_description: string;
+  inherited_skill: InheritedSkill | null;
   triggers: SkillTrigger[];
   acquisitions: SkillAcquisitionEntry[];
 }
