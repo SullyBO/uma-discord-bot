@@ -11,7 +11,7 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { umaCache } from '../cache';
+import { cardCache, umaCache } from '../cache';
 import { fetchUmaById, Fetcher } from '../api/client';
 import { UmaDetail, UmaIndex } from '../types';
 import { formatUmaVersion } from '../utils';
@@ -188,7 +188,7 @@ async function attachToggleCollector(
 
         await selected.deferUpdate();
         await i.deleteReply();
-        await renderSkill(selected, Number(selected.values[0]), fetcher);
+        await renderSkill(selected, Number(selected.values[0]), fetcher, umaCache, cardCache);
       } catch {
         try {
           await i.editReply({ content: 'Timed out.', components: [] });

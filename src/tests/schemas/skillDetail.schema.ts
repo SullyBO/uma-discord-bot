@@ -61,6 +61,19 @@ export const skillDetailSchema = {
         additionalProperties: false,
       },
     },
+    acquisitions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          source_id: { type: 'number' },
+          source_type: { type: 'string' },
+          acquisition: { type: 'string' },
+        },
+        required: ['source_id', 'source_type', 'acquisition'],
+        additionalProperties: false,
+      },
+    },
   },
   required: [
     'id',
@@ -71,6 +84,7 @@ export const skillDetailSchema = {
     'sp_cost',
     'is_jp_only',
     'triggers',
+    'acquisitions',
   ],
   additionalProperties: false,
 };

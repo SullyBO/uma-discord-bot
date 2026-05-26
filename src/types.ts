@@ -90,6 +90,7 @@ export interface SkillTrigger {
 export interface SkillDetail extends SkillSummary {
   ingame_description: string;
   triggers: SkillTrigger[];
+  acquisitions: SkillAcquisitionEntry[];
 }
 
 export interface CMRace {
@@ -154,4 +155,10 @@ export interface CardDetail {
   unique_effect: string | null;
   effects: CardEffect[];
   skills: CardSkill[];
+}
+
+export interface SkillAcquisitionEntry {
+  source_id: number;
+  source_type: 'uma' | 'support_card';
+  acquisition: string;
 }

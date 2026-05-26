@@ -11,7 +11,7 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { cardCache, skillCache } from '../cache';
+import { cardCache, skillCache, umaCache } from '../cache';
 import { fetchCardById, Fetcher } from '../api/client';
 import { CardDetail, CardIndex } from '../types';
 import { renderSkill } from './skill';
@@ -219,7 +219,7 @@ async function attachPageCollector(
 
         await selected.deferUpdate();
         await i.deleteReply();
-        await renderSkill(selected, Number(selected.values[0]), fetcher);
+        await renderSkill(selected, Number(selected.values[0]), fetcher, umaCache, cardCache);
       } catch {
         try {
           await i.editReply({ content: 'Timed out.', components: [] });
