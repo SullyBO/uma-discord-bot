@@ -6,7 +6,9 @@ import {
   Collection,
   ComponentType,
   EmbedBuilder,
+  Message,
   MessageFlags,
+  RepliableInteraction,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -122,9 +124,9 @@ export function buildPageRow(currentPage: 'details' | 'skills'): ActionRowBuilde
 }
 
 async function attachToggleCollector(
-  interaction: ChatInputCommandInteraction,
+  message: Message,
+  userId: string,
   detail: UmaDetail,
-  message: Awaited<ReturnType<typeof interaction.fetchReply>>,
   fetcher: Fetcher = fetch,
 ): Promise<void> {
   let currentPage: 'details' | 'skills' = 'details';
@@ -142,8 +144,7 @@ async function attachToggleCollector(
   const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
     filter: (i) =>
-      (i.customId === 'uma_toggle' || i.customId === 'uma_skill_browse') &&
-      i.user.id === interaction.user.id,
+      (i.customId === 'uma_toggle' || i.customId === 'uma_skill_browse') && i.user.id === userId,
     time: 120_000,
   });
 
@@ -182,7 +183,7 @@ async function attachToggleCollector(
       try {
         const selected = await selectMessage.awaitMessageComponent({
           componentType: ComponentType.StringSelect,
-          filter: (s) => s.customId === 'uma_skill_select' && s.user.id === interaction.user.id,
+          filter: (s) => s.customId === 'uma_skill_select' && s.user.id === userId,
           time: 30_000,
         });
 
@@ -198,8 +199,22 @@ async function attachToggleCollector(
   });
 
   collector.on('end', () => {
-    interaction.editReply({ components: [] }).catch(() => undefined);
+    message.edit({ components: [] }).catch(() => undefined);
   });
+}
+
+export async function renderUma(
+  interaction: RepliableInteraction,
+  umaId: number,
+  fetcher: Fetcher = fetch,
+): Promise<void> {
+  const detail = await fetchUmaById(umaId, fetcher);
+  const message = await interaction.followUp({
+    embeds: [buildDetailsEmbed(detail)],
+    components: [buildPageRow('details')],
+    flags: MessageFlags.Ephemeral,
+  });
+  await attachToggleCollector(message, interaction.user.id, detail, fetcher);
 }
 
 export async function execute(
@@ -226,8 +241,8 @@ export async function execute(
       embeds: [buildDetailsEmbed(detail)],
       components: [buildPageRow('details')],
     });
-    const singleMatchMessage = await interaction.fetchReply();
-    await attachToggleCollector(interaction, detail, singleMatchMessage, fetcher);
+    const message = await interaction.fetchReply();
+    await attachToggleCollector(message, interaction.user.id, detail, fetcher);
     return;
   }
 
@@ -264,11 +279,11 @@ export async function execute(
     await i.deferUpdate();
     const detail = await fetchUmaById(Number(i.values[0]), fetcher);
     await interaction.deleteReply();
-    const followUpMessage = await interaction.followUp({
+    const followUp = await interaction.followUp({
       components: [buildPageRow('details')],
       embeds: [buildDetailsEmbed(detail)],
     });
-    await attachToggleCollector(interaction, detail, followUpMessage, fetcher);
+    await attachToggleCollector(followUp, interaction.user.id, detail, fetcher);
   } catch {
     try {
       await interaction.editReply({ content: 'Timed out.', components: [] });

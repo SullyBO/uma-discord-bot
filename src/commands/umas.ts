@@ -8,10 +8,14 @@ import {
   InteractionCollector,
   SlashCommandBuilder,
   ButtonInteraction,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import { fetchUmas, Fetcher } from '../api/client';
 import { UmaSummary } from '../types';
 import { formatUmaVersion } from '../utils';
+import { renderUma } from './uma';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -87,11 +91,9 @@ export function formatReleaseDate(uma: UmaSummary): string {
 
 export function buildPages(lines: string[]): string[] {
   const pages: string[] = [];
-
   for (let i = 0; i < lines.length; i += 3) {
     pages.push(lines.slice(i, i + 3).join('\n\n'));
   }
-
   return pages;
 }
 
@@ -125,6 +127,10 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
       .setLabel('▶')
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(pageIndex === totalPages - 1),
+    new ButtonBuilder()
+      .setCustomId('umas_view')
+      .setLabel('View an Uma')
+      .setStyle(ButtonStyle.Primary),
   );
 }
 
@@ -163,7 +169,8 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: ComponentType.Button,
     filter: (i) =>
-      (i.customId === 'umas_prev' || i.customId === 'umas_next') && i.user.id === userId,
+      (i.customId === 'umas_prev' || i.customId === 'umas_next' || i.customId === 'umas_view') &&
+      i.user.id === userId,
     time: 120_000,
   });
 
@@ -173,6 +180,50 @@ export async function execute(interaction: ChatInputCommandInteraction, fetcher:
     collector.on('collect', async (i) => {
       if (i.customId === 'umas_prev') pageIndex = Math.max(0, pageIndex - 1);
       if (i.customId === 'umas_next') pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+
+      if (i.customId === 'umas_view') {
+        const pageUmas = umas.slice(pageIndex * 3, pageIndex * 3 + 3);
+
+        const select = new StringSelectMenuBuilder()
+          .setCustomId('umas_view_select')
+          .setPlaceholder('Select an umamusume')
+          .addOptions(
+            pageUmas.map((uma) =>
+              new StringSelectMenuOptionBuilder()
+                .setLabel(uma.name)
+                .setDescription(formatUmaVersion(uma.subtitle))
+                .setValue(String(uma.id)),
+            ),
+          );
+
+        const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+        const { resource } = await i.reply({
+          content: 'Select an umamusume to look up:',
+          components: [selectRow],
+          flags: MessageFlags.Ephemeral,
+          withResponse: true,
+        });
+
+        const selectMessage = resource!.message!;
+
+        try {
+          const selected = await selectMessage.awaitMessageComponent({
+            componentType: ComponentType.StringSelect,
+            filter: (s) => s.customId === 'umas_view_select' && s.user.id === userId,
+            time: 30_000,
+          });
+
+          await selected.deferUpdate();
+          await i.deleteReply();
+          await renderUma(selected, Number(selected.values[0]), fetcher);
+        } catch {
+          try {
+            await i.editReply({ content: 'Timed out.', components: [] });
+          } catch {}
+        }
+        return;
+      }
 
       await i.update({
         embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, params)],
