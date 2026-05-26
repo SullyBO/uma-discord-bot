@@ -99,6 +99,7 @@ function makeFakeMessage() {
   const fakeMessage = {
     createMessageComponentCollector: vi.fn().mockReturnValue(fakeCollector),
     awaitMessageComponent: vi.fn(),
+    edit: vi.fn().mockResolvedValue(undefined),
   };
   return { fakeMessage, fakeCollector, handlers };
 }
@@ -109,6 +110,7 @@ function makeInteraction(name: string) {
 
   const followUpMessage = {
     createMessageComponentCollector: vi.fn().mockReturnValue(fakeCollector),
+    edit: vi.fn().mockResolvedValue(undefined),
   };
 
   const interaction = {
@@ -278,10 +280,10 @@ describe('execute', () => {
     });
 
     it('removes components when collector ends', async () => {
-      const { interaction, handlers } = makeInteraction('suzuka');
+      const { interaction, singleMatchMessage, handlers } = makeInteraction('suzuka');
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       await handlers['end'](undefined);
-      expect(interaction.editReply).toHaveBeenCalledWith({ components: [] });
+      expect(singleMatchMessage.edit).toHaveBeenCalledWith({ components: [] });
     });
   });
 
@@ -381,11 +383,12 @@ describe('execute', () => {
     });
 
     it('removes components when toggle collector ends after selection', async () => {
-      const { interaction, selectReplyMessage, handlers } = makeInteraction('special');
+      const { interaction, selectReplyMessage, followUpMessage, handlers } =
+        makeInteraction('special');
       selectReplyMessage.awaitMessageComponent.mockResolvedValue(makeSelectInteraction());
       await execute(interaction, cache, makeFetcher(mockUmaDetail));
       await handlers['end'](undefined);
-      expect(interaction.editReply).toHaveBeenCalledWith({ components: [] });
+      expect(followUpMessage.edit).toHaveBeenCalledWith({ components: [] });
     });
   });
 });

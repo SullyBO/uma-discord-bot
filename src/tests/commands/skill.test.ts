@@ -11,6 +11,7 @@ const mockSkillSummary = (overrides: Partial<SkillSummary> = {}): SkillSummary =
   rarity: 'normal',
   sp_cost: 50,
   is_jp_only: false,
+  ingame_description: 'Increases speed for a short duration.',
   ...overrides,
 });
 
@@ -22,6 +23,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
   sp_cost: 50,
   is_jp_only: false,
   ingame_description: 'Increases speed for a short duration.',
+  acquisitions: [],
   triggers: [
     {
       id: 1,
@@ -65,14 +67,39 @@ function makeCache(entries: SkillSummary[]): Collection<number, SkillSummary> {
   return cache;
 }
 
+function makeFakeMessage() {
+  const handlers: Record<string, (...args: unknown[]) => Promise<void>> = {};
+  const fakeCollector = {
+    on: vi.fn((event: string, handler: (...args: unknown[]) => Promise<void>) => {
+      handlers[event] = handler;
+    }),
+  };
+  const fakeMessage = {
+    createMessageComponentCollector: vi.fn().mockReturnValue(fakeCollector),
+    awaitMessageComponent: vi.fn(),
+    edit: vi.fn().mockResolvedValue(undefined),
+  };
+  return { fakeMessage, fakeCollector, handlers };
+}
+
 function makeInteraction(name: string): ChatInputCommandInteraction {
+  const { fakeMessage: selectReplyMessage } = makeFakeMessage();
+  const { fakeMessage: fetchReplyMessage } = makeFakeMessage();
+  const followUpMessage = {
+    createMessageComponentCollector: vi.fn().mockReturnValue({
+      on: vi.fn(),
+    }),
+    edit: vi.fn().mockResolvedValue(undefined),
+  };
+
   return {
     options: { getString: vi.fn().mockReturnValue(name) },
-    reply: vi.fn().mockResolvedValue({ resource: { message: { awaitMessageComponent: vi.fn() } } }),
+    reply: vi.fn().mockResolvedValue({ resource: { message: selectReplyMessage } }),
     deferReply: vi.fn().mockResolvedValue(undefined),
     editReply: vi.fn().mockResolvedValue(undefined),
     deleteReply: vi.fn().mockResolvedValue(undefined),
-    followUp: vi.fn().mockResolvedValue(undefined),
+    followUp: vi.fn().mockResolvedValue(followUpMessage),
+    fetchReply: vi.fn().mockResolvedValue(fetchReplyMessage),
     deferred: false,
     user: { id: 'user-123' },
   } as unknown as ChatInputCommandInteraction;
@@ -93,6 +120,7 @@ function makeCollectorInteraction(
   const interaction = makeInteraction('speed');
   const fakeMessage = {
     awaitMessageComponent: vi.fn().mockResolvedValue(selectInteraction),
+    edit: vi.fn().mockResolvedValue(undefined),
   };
   (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue({
     resource: { message: fakeMessage },
@@ -104,6 +132,7 @@ function makeTimedOutInteraction() {
   const interaction = makeInteraction('speed');
   const fakeMessage = {
     awaitMessageComponent: vi.fn().mockRejectedValue(new Error('Collector timeout')),
+    edit: vi.fn().mockResolvedValue(undefined),
   };
   (interaction.reply as ReturnType<typeof vi.fn>).mockResolvedValue({
     resource: { message: fakeMessage },

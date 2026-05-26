@@ -18,6 +18,7 @@ const mockSkill = (overrides: Partial<SkillSummary> = {}): SkillSummary => ({
   rarity: 'normal',
   sp_cost: 50,
   is_jp_only: false,
+  ingame_description: 'Increases speed.',
   ...overrides,
 });
 
@@ -51,21 +52,21 @@ describe('formatSummary', () => {
 
   it('includes category, rarity, and sp_cost', () => {
     const result = formatSummary(mockSkill());
-    expect(result).toContain('Category: velocity');
-    expect(result).toContain('Rarity: normal');
+    expect(result).toContain('Category: Velocity');
+    expect(result).toContain('Rarity: Normal');
     expect(result).toContain('SP: 50');
   });
 });
 
 describe('buildPages', () => {
-  it('puts up to 5 items per page', () => {
-    const lines = Array.from({ length: 5 }, (_, i) => `skill ${i}`);
+  it('puts up to 4 items per page', () => {
+    const lines = Array.from({ length: 4 }, (_, i) => `skill ${i}`);
     const pages = buildPages(lines);
     expect(pages).toHaveLength(1);
   });
 
-  it('splits into multiple pages when over 5 items', () => {
-    const lines = Array.from({ length: 6 }, (_, i) => `skill ${i}`);
+  it('splits into multiple pages when over 4 items', () => {
+    const lines = Array.from({ length: 5 }, (_, i) => `skill ${i}`);
     const pages = buildPages(lines);
     expect(pages).toHaveLength(2);
   });
@@ -184,7 +185,7 @@ describe('execute', () => {
   });
 
   it('edits reply with embed and buttons when multiple pages', async () => {
-    const skills = Array.from({ length: 6 }, (_, i) => mockSkill({ id: i, name: `Skill ${i}` }));
+    const skills = Array.from({ length: 5 }, (_, i) => mockSkill({ id: i, name: `Skill ${i}` }));
     const interaction = makeInteraction();
     await execute(interaction, makeFetcher(skills));
     expect(interaction.editReply).toHaveBeenCalledWith(
@@ -213,7 +214,7 @@ describe('execute', () => {
 
     function makePaginatedFetcher() {
       return makeFetcher(
-        Array.from({ length: 6 }, (_, i) => mockSkill({ id: i, name: `Skill ${i}` })),
+        Array.from({ length: 5 }, (_, i) => mockSkill({ id: i, name: `Skill ${i}` })),
       );
     }
 
