@@ -13,6 +13,7 @@ import {
 import { fetchSkills, Fetcher } from '../api/client';
 import { SkillSummary } from '../types';
 import { CATEGORIES, EFFECT_TYPES, RARITIES } from '../constants/skills';
+import { capitalize } from '../utils';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -72,7 +73,7 @@ export function formatSummary(skill: SkillSummary): string {
   const costPart = skill.sp_cost > 0 ? ` | SP: ${skill.sp_cost}` : '';
   return [
     `**${skill.name}**`,
-    `Category: ${skill.category} | Rarity: ${skill.rarity}${costPart}`,
+    `Category: ${capitalize(skill.category)} | Rarity: ${capitalize(skill.rarity)}${costPart}`,
     skill.ingame_description,
   ].join('\n');
 }
