@@ -16,6 +16,7 @@ import { fetchCardById, Fetcher } from '../api/client';
 import { CardDetail, CardIndex } from '../types';
 import { renderSkill } from './skill';
 import { formatCardType, formatRarity } from '../utils';
+import { EMOJIS } from '../constants/emojis';
 
 export const data = new SlashCommandBuilder()
   .setName('card')
@@ -30,10 +31,10 @@ type Page = 'skills' | LbLevel;
 const PAGE_ORDER: Page[] = ['skills', 'lb0', 'lb1', 'lb2', 'lb3', 'mlb'];
 
 const LB_LABELS: Record<LbLevel, string> = {
-  lb0: 'LB0',
-  lb1: 'LB1',
-  lb2: 'LB2',
-  lb3: 'LB3',
+  lb0: '0LB',
+  lb1: '1LB',
+  lb2: '2LB',
+  lb3: '3LB',
   mlb: 'MLB',
 };
 
@@ -286,19 +287,25 @@ export async function execute(
     return;
   }
 
+  const options = matches.first(25).map((card) => {
+    const option = new StringSelectMenuOptionBuilder()
+      .setLabel(`${card.char_name} - ${formatRarity(card.rarity)}`)
+      .setDescription(card.title || 'Unreleased')
+      .setValue(String(card.support_id));
+
+    const emoji = EMOJIS[card.card_type as keyof typeof EMOJIS];
+    if (emoji) {
+      const id = emoji.match(/:(\d+)>/)?.[1];
+      if (id) option.setEmoji({ id });
+    }
+
+    return option;
+  });
+
   const select = new StringSelectMenuBuilder()
     .setCustomId('card_select')
     .setPlaceholder('Select a support card')
-    .addOptions(
-      matches.first(25).map((card) =>
-        new StringSelectMenuOptionBuilder()
-          .setLabel(
-            `${card.char_name} - ${formatCardType(card.card_type)} - ${formatRarity(card.rarity)}`,
-          )
-          .setDescription(card.title || 'Unreleased')
-          .setValue(String(card.support_id)),
-      ),
-    );
+    .addOptions(options);
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 

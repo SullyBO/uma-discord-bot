@@ -122,7 +122,7 @@ function buildAcquisitionFields(
     const value = buildGroupedField(cardEntries, (a) => {
       const card = cards.get(a.source_id);
       return card
-        ? `${card.char_name} ${formatRarity(card.rarity)} ${formatCardType(card.card_type)}`
+        ? `${formatCardType(card.card_type)}${card.char_name} ${formatRarity(card.rarity)}`
         : `Unknown Card #${a.source_id}`;
     });
     chunkAcquisitionField(value.split('\n')).forEach((chunk, i) => {

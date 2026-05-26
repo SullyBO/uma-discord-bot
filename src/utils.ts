@@ -1,3 +1,5 @@
+import { EMOJIS } from './constants/emojis';
+
 export function capitalize(str: string): string {
   /* v8 ignore next */
   if (!str) return str;
@@ -29,7 +31,9 @@ export function logRequest(path: string, status: number, ms: number, outcome: Lo
 }
 
 export function formatCardType(cardType: string): string {
-  return cardType.charAt(0).toUpperCase() + cardType.slice(1);
+  return (
+    EMOJIS[cardType as keyof typeof EMOJIS] ?? cardType.charAt(0).toUpperCase() + cardType.slice(1)
+  );
 }
 
 export function formatRarity(rarity: string): string {
