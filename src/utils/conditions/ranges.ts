@@ -122,6 +122,33 @@ export function renderGroup(group: SkillCondition[], isOrGroup: boolean): string
     operator: normalizeOperator(c.operator),
   }));
 
+  // ── Multi-key merges ───────────────────────────────────────────────────────
+  // Detect combinations of conditions that together imply a single concept.
+
+  const hasFinalCornerOn = normalizedGroup.some(
+    (c) => c.cond_key === 'is_finalcorner' && c.operator === '==' && c.cond_val === '1',
+  );
+  const hasNotOnCorner = normalizedGroup.some(
+    (c) => c.cond_key === 'corner' && c.operator === '==' && c.cond_val === '0',
+  );
+  const finalStraightMerge = hasFinalCornerOn && hasNotOnCorner;
+
+  // Keys suppressed by a multi-key merge (emitted as a single combined line instead)
+  const multiKeySuppress = new Set<string>();
+  const multiKeyLines: { afterKey: string; text: string }[] = [];
+
+  if (finalStraightMerge) {
+    multiKeySuppress.add('is_finalcorner');
+    multiKeySuppress.add('corner');
+    // Emit in place of whichever of the two appears first
+    const firstKey = normalizedGroup.find(
+      (c) => c.cond_key === 'is_finalcorner' || c.cond_key === 'corner',
+    )!.cond_key;
+    multiKeyLines.push({ afterKey: firstKey, text: 'on the final straight' });
+  }
+
+  // ── Single-key range merges ────────────────────────────────────────────────
+
   // Build a map of key -> { gte, lte } for range candidates
   const rangeCandidates = new Map<string, { gte?: SkillCondition; lte?: SkillCondition }>();
   for (const cond of normalizedGroup) {
@@ -145,12 +172,24 @@ export function renderGroup(group: SkillCondition[], isOrGroup: boolean): string
     }
   }
 
-  // Render: skip individual >= / <= conditions for merged keys,
-  // and emit the merged line in place of the first one encountered.
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   const lines: string[] = [];
   const emittedMerges = new Set<string>();
+  const emittedMultiKeys = new Set<string>();
 
   for (const cond of normalizedGroup) {
+    // Multi-key merge: suppress both keys, emit combined line at first occurrence
+    if (multiKeySuppress.has(cond.cond_key)) {
+      const merge = multiKeyLines.find((m) => m.afterKey === cond.cond_key);
+      if (merge && !emittedMultiKeys.has(merge.text)) {
+        emittedMultiKeys.add(merge.text);
+        lines.push(capitalize(merge.text));
+      }
+      continue;
+    }
+
+    // Single-key range merge
     if (mergedKeys.has(cond.cond_key) && (cond.operator === '>=' || cond.operator === '<=')) {
       if (!emittedMerges.has(cond.cond_key)) {
         emittedMerges.add(cond.cond_key);
@@ -158,6 +197,7 @@ export function renderGroup(group: SkillCondition[], isOrGroup: boolean): string
       }
       continue;
     }
+
     lines.push(capitalize(translateCondition(cond)));
   }
 
