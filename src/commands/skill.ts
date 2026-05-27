@@ -32,6 +32,8 @@ import {
   formatRarity,
   formatUmaVersion,
 } from '../utils';
+import { EMOJIS } from '../constants/emojis';
+import { renderCard } from './card';
 
 type SkillPage = 'detail' | 'inherited' | 'acquisitions';
 
@@ -220,6 +222,7 @@ function buildSkillEmbed(
 export function buildSkillPageButtons(
   page: SkillPage,
   hasInherited: boolean,
+  acquisitions: SkillAcquisitionEntry[],
 ): ActionRowBuilder<ButtonBuilder> {
   const row = new ActionRowBuilder<ButtonBuilder>();
 
@@ -249,10 +252,39 @@ export function buildSkillPageButtons(
       .setDisabled(page === 'acquisitions'),
   );
 
+  if (page === 'acquisitions') {
+    const hasCards = acquisitions.some((a) => a.source_type === 'support_card');
+    const hasUmas = acquisitions.some((a) => a.source_type === 'uma');
+
+    if (hasCards) {
+      row.addComponents(
+        new ButtonBuilder()
+          .setCustomId('skill_view_card')
+          .setLabel('View a Card')
+          .setStyle(ButtonStyle.Primary),
+      );
+    }
+
+    if (hasUmas) {
+      row.addComponents(
+        new ButtonBuilder()
+          .setCustomId('skill_view_uma')
+          .setLabel('View an Uma')
+          .setStyle(ButtonStyle.Primary),
+      );
+    }
+  }
+
   return row;
 }
 
-const PAGE_BUTTON_IDS = ['skill_detail', 'skill_inherited', 'skill_acquisitions'] as const;
+const PAGE_BUTTON_IDS = [
+  'skill_detail',
+  'skill_inherited',
+  'skill_acquisitions',
+  'skill_view_card',
+  'skill_view_uma',
+] as const;
 
 const BUTTON_PAGE_MAP: Record<string, SkillPage> = {
   skill_detail: 'detail',
@@ -266,6 +298,7 @@ async function attachPageCollector(
   detail: SkillDetail,
   umas: Collection<number, UmaIndex>,
   cards: Collection<number, CardIndex>,
+  fetcher: Fetcher,
 ): Promise<void> {
   let currentPage: SkillPage = 'detail';
   const hasInherited = detail.inherited_skill !== null;
@@ -278,10 +311,108 @@ async function attachPageCollector(
   });
 
   collector.on('collect', async (i) => {
+    if (i.customId === 'skill_view_card') {
+      const cardEntries = detail.acquisitions.filter((a) => a.source_type === 'support_card');
+      const options = cardEntries.slice(0, 25).map((a) => {
+        const card = cards.get(a.source_id);
+        const label = card
+          ? `${card.char_name} - ${formatRarity(card.rarity)}`
+          : `Unknown Card #${a.source_id}`;
+        const option = new StringSelectMenuOptionBuilder()
+          .setLabel(label)
+          .setValue(String(a.source_id));
+        if (card) {
+          const emoji = EMOJIS[card.card_type as keyof typeof EMOJIS];
+          if (emoji) {
+            const id = emoji.match(/:(\d+)>/)?.[1];
+            if (id) option.setEmoji({ id });
+          }
+        }
+        return option;
+      });
+
+      const select = new StringSelectMenuBuilder()
+        .setCustomId('skill_card_select')
+        .setPlaceholder('Select a card')
+        .addOptions(options);
+
+      const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+      const { resource } = await i.reply({
+        content: 'Select a card to look up:',
+        components: [selectRow],
+        flags: MessageFlags.Ephemeral,
+        withResponse: true,
+      });
+
+      const selectMessage = resource!.message!;
+
+      try {
+        const selected = await selectMessage.awaitMessageComponent({
+          componentType: ComponentType.StringSelect,
+          filter: (s) => s.customId === 'skill_card_select' && s.user.id === userId,
+          time: 30_000,
+        });
+
+        await selected.deferUpdate();
+        await i.deleteReply();
+        await renderCard(selected, Number(selected.values[0]), fetcher, skillCache);
+      } catch {
+        try {
+          await i.editReply({ content: 'Timed out.', components: [] });
+        } catch {}
+      }
+      return;
+    }
+
+    if (i.customId === 'skill_view_uma') {
+      const umaEntries = detail.acquisitions.filter((a) => a.source_type === 'uma');
+      const options = umaEntries.slice(0, 25).map((a) => {
+        const uma = umas.get(a.source_id);
+        const label = uma
+          ? `${uma.name} (${formatUmaVersion(uma.version)})`
+          : `Unknown Uma #${a.source_id}`;
+        return new StringSelectMenuOptionBuilder().setLabel(label).setValue(String(a.source_id));
+      });
+
+      const select = new StringSelectMenuBuilder()
+        .setCustomId('skill_uma_select')
+        .setPlaceholder('Select an uma')
+        .addOptions(options);
+
+      const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+      const { resource } = await i.reply({
+        content: 'Select an uma to look up:',
+        components: [selectRow],
+        flags: MessageFlags.Ephemeral,
+        withResponse: true,
+      });
+
+      const selectMessage = resource!.message!;
+
+      try {
+        const selected = await selectMessage.awaitMessageComponent({
+          componentType: ComponentType.StringSelect,
+          filter: (s) => s.customId === 'skill_uma_select' && s.user.id === userId,
+          time: 30_000,
+        });
+
+        await selected.deferUpdate();
+        await i.deleteReply();
+        // renderUma goes here once available
+      } catch {
+        try {
+          await i.editReply({ content: 'Timed out.', components: [] });
+        } catch {}
+      }
+      return;
+    }
+
     currentPage = BUTTON_PAGE_MAP[i.customId] ?? 'detail';
     await i.update({
       embeds: [buildSkillEmbed(detail, currentPage, umas, cards)],
-      components: [buildSkillPageButtons(currentPage, hasInherited)],
+      components: [buildSkillPageButtons(currentPage, hasInherited, detail.acquisitions)],
     });
   });
 
@@ -301,10 +432,10 @@ async function showSkill(
   const hasInherited = detail.inherited_skill !== null;
   await interaction.editReply({
     embeds: [buildSkillEmbed(detail, 'detail', umas, cards)],
-    components: [buildSkillPageButtons('detail', hasInherited)],
+    components: [buildSkillPageButtons('detail', hasInherited, detail.acquisitions)],
   });
   const message = await interaction.fetchReply();
-  await attachPageCollector(message, interaction.user.id, detail, umas, cards);
+  await attachPageCollector(message, interaction.user.id, detail, umas, cards, fetcher);
 }
 
 export async function renderSkill(
@@ -318,10 +449,10 @@ export async function renderSkill(
   const hasInherited = detail.inherited_skill !== null;
   const message = await interaction.followUp({
     embeds: [buildSkillEmbed(detail, 'detail', umas, cards)],
-    components: [buildSkillPageButtons('detail', hasInherited)],
+    components: [buildSkillPageButtons('detail', hasInherited, detail.acquisitions)],
     flags: MessageFlags.Ephemeral,
   });
-  await attachPageCollector(message, interaction.user.id, detail, umas, cards);
+  await attachPageCollector(message, interaction.user.id, detail, umas, cards, fetcher);
 }
 
 export async function execute(
@@ -384,9 +515,9 @@ export async function execute(
     await interaction.deleteReply();
     const followUp = await interaction.followUp({
       embeds: [buildSkillEmbed(detail, 'detail', umas, cards)],
-      components: [buildSkillPageButtons('detail', hasInherited)],
+      components: [buildSkillPageButtons('detail', hasInherited, detail.acquisitions)],
     });
-    await attachPageCollector(followUp, interaction.user.id, detail, umas, cards);
+    await attachPageCollector(followUp, interaction.user.id, detail, umas, cards, fetcher);
   } catch {
     await interaction.editReply({ content: 'Timed out.', components: [] });
   }

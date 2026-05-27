@@ -9,10 +9,15 @@ import {
   InteractionCollector,
   SlashCommandBuilder,
   ButtonInteraction,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import { cardCache } from '../cache';
 import { CardIndex } from '../types';
 import { formatCardType, formatRarity } from '../utils';
+import { EMOJIS } from '../constants/emojis';
+import { renderCard } from './card';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -64,7 +69,7 @@ export function formatCardLine(card: CardIndex): string {
   const rarity = formatRarity(card.rarity);
   const welfare = card.is_welfare ? ' - Welfare' : '';
   const release = formatReleaseDate(card);
-  return `**${card.char_name}** ${title}\n${type} - ${rarity}${welfare}${release}`;
+  return `**${type} ${card.char_name}** ${title}\n${rarity}${welfare}${release}`;
 }
 
 export function buildPages(lines: string[]): string[] {
@@ -108,6 +113,10 @@ export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilde
       .setLabel('▶')
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(pageIndex === totalPages - 1),
+    new ButtonBuilder()
+      .setCustomId('cards_view')
+      .setLabel('View a Card')
+      .setStyle(ButtonStyle.Primary),
   );
 }
 
@@ -172,7 +181,8 @@ export async function execute(
   const collector = interaction.channel?.createMessageComponentCollector({
     componentType: ComponentType.Button,
     filter: (i) =>
-      (i.customId === 'cards_prev' || i.customId === 'cards_next') && i.user.id === userId,
+      (i.customId === 'cards_prev' || i.customId === 'cards_next' || i.customId === 'cards_view') &&
+      i.user.id === userId,
     time: 120_000,
   });
 
@@ -182,6 +192,58 @@ export async function execute(
     collector.on('collect', async (i) => {
       if (i.customId === 'cards_prev') pageIndex = Math.max(0, pageIndex - 1);
       if (i.customId === 'cards_next') pageIndex = Math.min(pages.length - 1, pageIndex + 1);
+
+      if (i.customId === 'cards_view') {
+        const pageCards = cards.slice(pageIndex * 5, pageIndex * 5 + 5);
+
+        const options = pageCards.map((card) => {
+          const option = new StringSelectMenuOptionBuilder()
+            .setLabel(`${card.char_name} - ${formatRarity(card.rarity)}`)
+            .setDescription(card.title || 'Unreleased')
+            .setValue(String(card.support_id));
+
+          const emoji = EMOJIS[card.card_type as keyof typeof EMOJIS];
+          if (emoji) {
+            const id = emoji.match(/:(\d+)>/)?.[1];
+            if (id) option.setEmoji({ id });
+          }
+
+          return option;
+        });
+
+        const select = new StringSelectMenuBuilder()
+          .setCustomId('cards_view_select')
+          .setPlaceholder('Select a card')
+          .addOptions(options);
+
+        const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+        const { resource } = await i.reply({
+          content: 'Select a card to look up:',
+          components: [selectRow],
+          flags: MessageFlags.Ephemeral,
+          withResponse: true,
+        });
+
+        const selectMessage = resource!.message!;
+
+        try {
+          const selected = await selectMessage.awaitMessageComponent({
+            componentType: ComponentType.StringSelect,
+            filter: (s) => s.customId === 'cards_view_select' && s.user.id === userId,
+            time: 30_000,
+          });
+
+          await selected.deferUpdate();
+          await i.deleteReply();
+          await renderCard(selected, Number(selected.values[0]));
+        } catch {
+          try {
+            await i.editReply({ content: 'Timed out.', components: [] });
+          } catch {}
+        }
+        return;
+      }
 
       await i.update({
         embeds: [buildEmbed(pages[pageIndex], pageIndex, pages.length, filters)],

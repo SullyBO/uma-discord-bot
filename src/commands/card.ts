@@ -7,6 +7,7 @@ import {
   ComponentType,
   EmbedBuilder,
   MessageFlags,
+  RepliableInteraction,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -341,4 +342,25 @@ export async function execute(
       await interaction.followUp({ content: 'Timed out.', flags: MessageFlags.Ephemeral });
     }
   }
+}
+
+export async function renderCard(
+  interaction: RepliableInteraction,
+  cardId: number,
+  fetcher: Fetcher = fetch,
+  skCache: Collection<number, { id: number; name: string }> = skillCache,
+): Promise<void> {
+  const detail = await fetchCardById(cardId, fetcher);
+  const message = await interaction.followUp({
+    embeds: [buildSkillsEmbed(detail, skCache)],
+    components: [buildPageRow('skills')],
+    flags: MessageFlags.Ephemeral,
+  });
+  await attachPageCollector(
+    interaction as ChatInputCommandInteraction,
+    detail,
+    message,
+    skCache,
+    fetcher,
+  );
 }
