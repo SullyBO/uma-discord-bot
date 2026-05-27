@@ -19,19 +19,13 @@ import {
   CardIndex,
   InheritedSkill,
   SkillAcquisitionEntry,
-  SkillCondition,
   SkillDetail,
   SkillIndex,
   SkillTrigger,
   UmaIndex,
 } from '../types';
-import {
-  capitalize,
-  formatCardType,
-  formatOperator,
-  formatRarity,
-  formatUmaVersion,
-} from '../utils';
+import { capitalize, formatCardType, formatRarity, formatUmaVersion } from '../utils/formatters';
+import { formatConditions } from '../utils/formatters';
 import { EMOJIS } from '../constants/emojis';
 import { renderCard } from './card';
 
@@ -43,17 +37,6 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option.setName('name').setDescription('The skill to look up').setRequired(true),
   );
-
-function formatConditions(conditions: SkillCondition[]): string {
-  const groups: string[][] = [];
-  for (const c of conditions) {
-    if (c.is_or || groups.length === 0) {
-      groups.push([]);
-    }
-    groups[groups.length - 1].push(`${c.cond_key} ${formatOperator(c.operator)} ${c.cond_val}`);
-  }
-  return groups.map((g) => g.join(', ')).join('.\n*alternatively:* ');
-}
 
 function formatTriggerLines(triggers: SkillTrigger[]): string[] {
   return triggers.map((t, i) => {
@@ -72,8 +55,8 @@ function formatTriggerLines(triggers: SkillTrigger[]): string[] {
       `**Duration:** ${duration}`,
     ];
     if (t.scaling) parts.push(`**Special Scaling:** ${t.scaling}`);
-    if (preconditions) parts.push(`**Preconditions:** ${preconditions}`);
-    if (conditions) parts.push(`**Conditions:** ${conditions}`);
+    if (preconditions) parts.push(`**Preconditions:**\n${preconditions}`);
+    if (conditions) parts.push(`**Conditions:**\n${conditions}`);
 
     return parts.join('\n');
   });

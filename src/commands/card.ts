@@ -16,7 +16,7 @@ import { cardCache, skillCache, umaCache } from '../cache';
 import { fetchCardById, Fetcher } from '../api/client';
 import { CardDetail, CardIndex } from '../types';
 import { renderSkill } from './skill';
-import { formatCardType, formatRarity } from '../utils';
+import { formatCardType, formatRarity } from '../utils/formatters';
 import { EMOJIS } from '../constants/emojis';
 
 export const data = new SlashCommandBuilder()

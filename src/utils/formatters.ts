@@ -1,4 +1,6 @@
-import { EMOJIS } from './constants/emojis';
+import { EMOJIS } from '../constants/emojis';
+import type { SkillCondition } from '../types';
+import { splitIntoOrGroups, renderGroup } from './conditions/ranges';
 
 export function capitalize(str: string): string {
   /* v8 ignore next */
@@ -38,4 +40,11 @@ export function formatCardType(cardType: string): string {
 
 export function formatRarity(rarity: string): string {
   return rarity.toUpperCase();
+}
+
+export function formatConditions(conditions: SkillCondition[]): string {
+  if (conditions.length === 0) return '';
+
+  const groups = splitIntoOrGroups(conditions);
+  return groups.flatMap((group, i) => renderGroup(group, i > 0)).join('\n');
 }

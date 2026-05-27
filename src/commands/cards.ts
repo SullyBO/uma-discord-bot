@@ -15,7 +15,7 @@ import {
 } from 'discord.js';
 import { cardCache } from '../cache';
 import { CardIndex } from '../types';
-import { formatCardType, formatRarity } from '../utils';
+import { formatCardType, formatRarity } from '../utils/formatters';
 import { EMOJIS } from '../constants/emojis';
 import { renderCard } from './card';
 

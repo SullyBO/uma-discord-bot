@@ -14,7 +14,7 @@ import {
 } from 'discord.js';
 import { fetchUmas, Fetcher } from '../api/client';
 import { UmaSummary } from '../types';
-import { formatUmaVersion } from '../utils';
+import { formatUmaVersion } from '../utils/formatters';
 import { renderUma } from './uma';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();

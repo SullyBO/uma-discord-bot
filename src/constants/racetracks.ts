@@ -1,0 +1,16 @@
+export const TRACK_NAMES: Record<number, string> = {
+  10001: 'Sapporo',
+  10002: 'Hakodate',
+  10003: 'Niigata',
+  10004: 'Fukushima',
+  10005: 'Nakayama',
+  10006: 'Tokyo',
+  10007: 'Chukyo',
+  10008: 'Kyoto',
+  10009: 'Hanshin',
+  10010: 'Kokura',
+  10101: 'Ooi',
+  10103: 'Kawasaki',
+  10104: 'Funabashi',
+  10105: 'Morioka',
+};

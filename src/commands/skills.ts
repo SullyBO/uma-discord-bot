@@ -15,7 +15,7 @@ import {
 import { fetchSkills, Fetcher } from '../api/client';
 import { SkillSummary } from '../types';
 import { CATEGORIES, EFFECT_TYPES, RARITIES } from '../constants/skills';
-import { capitalize } from '../utils';
+import { capitalize } from '../utils/formatters';
 import { renderSkill } from './skill';
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { capitalize, formatUmaVersion, formatOperator, logRequest } from '../utils';
+import { capitalize, formatUmaVersion, formatOperator, logRequest } from '../utils/formatters';
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {

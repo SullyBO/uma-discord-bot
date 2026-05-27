@@ -14,7 +14,7 @@ import {
   CardDetail,
   CardIndex,
 } from '../types';
-import { logRequest } from '../utils';
+import { logRequest } from '../utils/formatters';
 
 import Ajv, { Schema } from 'ajv';
 import { cardDetailSchema } from '../tests/schemas/cardDetail.schema';

@@ -16,7 +16,7 @@ import {
 import { cardCache, umaCache } from '../cache';
 import { fetchUmaById, Fetcher } from '../api/client';
 import { UmaDetail, UmaIndex } from '../types';
-import { formatUmaVersion } from '../utils';
+import { formatUmaVersion } from '../utils/formatters';
 import { renderSkill } from './skill';
 
 export const data = new SlashCommandBuilder()
