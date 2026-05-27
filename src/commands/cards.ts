@@ -98,7 +98,7 @@ export function buildEmbed(
   return new EmbedBuilder()
     .setTitle(title)
     .setDescription(page)
-    .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages}` });
+    .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages}      src: gametora.com` });
 }
 
 export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilder<ButtonBuilder> {

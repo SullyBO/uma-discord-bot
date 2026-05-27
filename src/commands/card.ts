@@ -77,7 +77,7 @@ function buildBaseEmbed(detail: CardDetail, page: Page): EmbedBuilder {
     .setTitle(detail.title || detail.char_name)
     .setURL(url)
     .setDescription(description)
-    .setFooter({ text: `source: gametora - ${pageLabel}` });
+    .setFooter({ text: `${pageLabel}      src: gametora.com` });
 }
 
 export function buildSkillsEmbed(

@@ -40,7 +40,7 @@ export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
     .setTitle(detail.name)
     .setURL(url)
     .setDescription(formatUmaVersion(detail.subtitle) + formatReleaseDate(detail))
-    .setFooter({ text: 'source: gametora' })
+    .setFooter({ text: 'Uma Details page      source: gametora.com' })
     .addFields(
       {
         name: 'Growth',
@@ -102,7 +102,7 @@ export function buildSkillsEmbed(detail: UmaDetail): EmbedBuilder {
     .setTitle(detail.name)
     .setURL(url)
     .setDescription(formatUmaVersion(detail.subtitle) + ' ' + formatReleaseDate(detail))
-    .setFooter({ text: 'source: gametora' })
+    .setFooter({ text: 'Uma Skills page     source: gametora' })
     .addFields(...skillFields);
 }
 

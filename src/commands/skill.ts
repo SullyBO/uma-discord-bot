@@ -156,7 +156,7 @@ export function buildSkillDetailEmbed(detail: SkillDetail): EmbedBuilder {
         ? [{ name: '', value: triggerLines.join('\n\n'), inline: false }]
         : []),
     )
-    .setFooter({ text: 'src: gametora.com | Detail page' });
+    .setFooter({ text: 'Detail page     src: gametora.com' });
 }
 
 export function buildSkillInheritedEmbed(detail: SkillDetail): EmbedBuilder {
@@ -176,7 +176,7 @@ export function buildSkillInheritedEmbed(detail: SkillDetail): EmbedBuilder {
         ? [{ name: '', value: triggerLines.join('\n\n'), inline: false }]
         : []),
     )
-    .setFooter({ text: 'src: gametora.com | Inherited Skill page' });
+    .setFooter({ text: 'Inherited Skill page      src: gametora.com' });
 }
 
 export function buildSkillAcquisitionsEmbed(
@@ -188,7 +188,7 @@ export function buildSkillAcquisitionsEmbed(
     .setTitle(detail.name)
     .setDescription(detail.ingame_description || null)
     .addFields(...buildAcquisitionFields(detail.acquisitions, umas, cards))
-    .setFooter({ text: 'src: gametora.com | Acquisitions page' });
+    .setFooter({ text: 'Acquisitions page     src: gametora.com' });
 }
 
 function buildSkillEmbed(
