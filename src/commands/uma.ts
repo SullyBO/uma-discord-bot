@@ -29,6 +29,8 @@ export const data = new SlashCommandBuilder()
 const ACQUISITION_ORDER = ['Unique', 'Innate', 'Awakening', 'Event'];
 // Simply add `Evolution` at the end of the array to enable evo skills once they're in global
 
+const EASTER_EGG = '1440759949436125266';
+
 export function buildDetailsEmbed(detail: UmaDetail): EmbedBuilder {
   const slug = detail.name
     .toLowerCase()
@@ -223,6 +225,15 @@ export async function execute(
   fetcher: Fetcher = fetch,
 ) {
   const query = interaction.options.getString('name', true).toLowerCase();
+
+  if (query === 'binch') {
+    const sticker = await interaction.guild?.stickers.fetch(EASTER_EGG);
+    if (sticker && interaction.channel && interaction.channel.isSendable()) {
+      await interaction.reply({ content: '\u200b', flags: MessageFlags.Ephemeral });
+      await interaction.channel.send({ stickers: [sticker] });
+    }
+    return;
+  }
 
   const matches = cache.filter((uma) => uma.name.toLowerCase().includes(query));
 
