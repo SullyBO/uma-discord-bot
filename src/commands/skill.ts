@@ -31,6 +31,8 @@ import { renderCard } from './card';
 
 type SkillPage = 'detail' | 'inherited' | 'acquisitions';
 
+const EASTER_EGG = '1486096193770754098';
+
 export const data = new SlashCommandBuilder()
   .setName('skill')
   .setDescription('Look up a skill by name')
@@ -446,6 +448,15 @@ export async function execute(
   cards: Collection<number, CardIndex> = cardCache,
 ) {
   const query = interaction.options.getString('name', true).toLowerCase();
+
+  if (query === 'zmil') {
+    const sticker = await interaction.guild?.stickers.fetch(EASTER_EGG);
+    if (sticker && interaction.channel && interaction.channel.isSendable()) {
+      await interaction.reply({ content: '\u200b', flags: MessageFlags.Ephemeral });
+      await interaction.channel.send({ stickers: [sticker] });
+    }
+    return;
+  }
 
   const matches = cache.filter((skill) => skill.name.toLowerCase().includes(query));
 
