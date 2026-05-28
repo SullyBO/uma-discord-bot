@@ -78,9 +78,9 @@ const baseCache = makeCache([
 ]);
 
 describe('formatCardLine', () => {
-  it('formats card name and title in bold', () => {
+  it('formats card name and title in bold with card type', () => {
     const result = formatCardLine(makeCard());
-    expect(result).toContain('**Special Week**');
+    expect(result).toMatch(/\*\*.*Special Week.*\*\*/);
     expect(result).toContain('My Very Best');
   });
 

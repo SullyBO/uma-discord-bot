@@ -8,7 +8,7 @@ import {
   execute,
   buildSkillDetailEmbed,
   buildSkillAcquisitionsEmbed,
-  buildSkillPageButton,
+  buildSkillPageButtons,
 } from '../../commands/skill';
 import { CardIndex, SkillDetail, SkillSummary, UmaIndex } from '../../types';
 import { Fetcher } from '../../api/client';
@@ -32,6 +32,7 @@ const mockSkillDetail = (overrides: Partial<SkillDetail> = {}): SkillDetail => (
   sp_cost: 50,
   is_jp_only: false,
   ingame_description: 'Increases speed for a short duration.',
+  inherited_skill: null,
   acquisitions: [],
   triggers: [
     {
@@ -394,15 +395,38 @@ describe('buildSkillAcquisitionsEmbed', () => {
   });
 });
 
-describe('buildSkillPageButton', () => {
+describe('buildSkillPageButtons', () => {
   it('shows Acquisitions button on detail page', () => {
-    const components = buildSkillPageButton('detail').toJSON().components;
-    expect((components[0] as APIButtonComponentWithCustomId).custom_id).toBe('skill_acquisitions');
+    const components = buildSkillPageButtons('detail', false, []).toJSON().components;
+    expect((components[0] as APIButtonComponentWithCustomId).custom_id).toBe('skill_detail');
+    const acqButton = components.find(
+      (c) => (c as APIButtonComponentWithCustomId).custom_id === 'skill_acquisitions',
+    );
+    expect(acqButton).toBeDefined();
   });
 
   it('shows Detail button on acquisitions page', () => {
-    const components = buildSkillPageButton('acquisitions').toJSON().components;
-    expect((components[0] as APIButtonComponentWithCustomId).custom_id).toBe('skill_detail');
+    const components = buildSkillPageButtons('acquisitions', false, []).toJSON().components;
+    const detailButton = components.find(
+      (c) => (c as APIButtonComponentWithCustomId).custom_id === 'skill_detail',
+    );
+    expect(detailButton).toBeDefined();
+  });
+
+  it('includes inherited skill button when hasInherited is true', () => {
+    const components = buildSkillPageButtons('detail', true, []).toJSON().components;
+    const inheritedButton = components.find(
+      (c) => (c as APIButtonComponentWithCustomId).custom_id === 'skill_inherited',
+    );
+    expect(inheritedButton).toBeDefined();
+  });
+
+  it('omits inherited skill button when hasInherited is false', () => {
+    const components = buildSkillPageButtons('detail', false, []).toJSON().components;
+    const inheritedButton = components.find(
+      (c) => (c as APIButtonComponentWithCustomId).custom_id === 'skill_inherited',
+    );
+    expect(inheritedButton).toBeUndefined();
   });
 });
 

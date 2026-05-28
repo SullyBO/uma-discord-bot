@@ -159,10 +159,11 @@ describe('buildSkillsEmbed', () => {
 });
 
 describe('buildEffectsEmbed', () => {
+  // LB_LABELS in source: lb0 -> '0LB', lb1 -> '1LB', etc.
   it('shows effects at the given lb level', () => {
     const embed = buildEffectsEmbed(mockCardDetail, 'lb0');
     const fields = embed.toJSON().fields ?? [];
-    const effectsField = fields.find((f) => f.name === 'Effects at LB0');
+    const effectsField = fields.find((f) => f.name === 'Effects at 0LB');
     expect(effectsField?.value).toContain('Speed Bonus');
     expect(effectsField?.value).toContain('10');
   });
@@ -187,7 +188,7 @@ describe('buildEffectsEmbed', () => {
     const detail = { ...mockCardDetail, effects: [] };
     const embed = buildEffectsEmbed(detail, 'lb0');
     const fields = embed.toJSON().fields ?? [];
-    const effectsField = fields.find((f) => f.name === 'Effects at LB0');
+    const effectsField = fields.find((f) => f.name === 'Effects at 0LB');
     expect(effectsField?.value).toBe('No effects.');
   });
 
@@ -197,7 +198,6 @@ describe('buildEffectsEmbed', () => {
       effects: [
         {
           effect_name: 'Speed Bonus',
-          effect_id: 1,
           lb0: null,
           lb1: null,
           lb2: null,
@@ -208,7 +208,7 @@ describe('buildEffectsEmbed', () => {
     };
     const embed = buildEffectsEmbed(detail, 'lb0');
     const fields = embed.toJSON().fields ?? [];
-    const effectsField = fields.find((f) => f.name === 'Effects at LB0');
+    const effectsField = fields.find((f) => f.name === 'Effects at 0LB');
     expect(effectsField?.value).toContain('-');
   });
 
@@ -233,12 +233,14 @@ describe('buildPageRow', () => {
 
   it('prev button wraps to last page from skills', () => {
     const components = buildPageRow('skills').toJSON().components;
+    // prevPage from 'skills' is 'mlb', label is '← MLB'
     expect((components[0] as APIButtonComponentWithCustomId).label).toContain('MLB');
   });
 
   it('next button advances from skills to lb0', () => {
     const components = buildPageRow('skills').toJSON().components;
-    expect((components[1] as APIButtonComponentWithCustomId).label).toContain('LB0');
+    // nextPage from 'skills' is 'lb0', label is '0LB →'
+    expect((components[1] as APIButtonComponentWithCustomId).label).toContain('0LB');
   });
 });
 
