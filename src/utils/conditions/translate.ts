@@ -113,7 +113,7 @@ export function translateCondition(cond: SkillCondition): string {
       return `any player character at ${fmtOp(operator, cond_val)} meters remaining`;
 
     case 'accumulatetime':
-      return `race ongoing for ${fmtOp(operator, cond_val)} seconds`;
+      return `${fmtOp(operator, cond_val)} seconds into the race`;
 
     case 'furlong':
       return `in furlong ${cond_val}`;
@@ -188,7 +188,7 @@ export function translateCondition(cond: SkillCondition): string {
     }
 
     case 'distance_diff_rate':
-      return `within ${cond_val}% of the field spread behind 1st`;
+      return `within ${cond_val}% of the 1st-to-last gap`;
 
     case 'distance_diff_top':
       return `gap to 1st is ${fmtOp(operator, cond_val)} meters`;
@@ -201,7 +201,7 @@ export function translateCondition(cond: SkillCondition): string {
     // ── Corners / straights ──────────────────────────────────────────────────
 
     case 'corner': {
-      if (operator === '!=' && cond_val === '0') return `on any corner`;
+      if (operator === '!=' && cond_val === '0') return `on a corner`;
       if (operator === '==' && cond_val === '0') return `not on a corner`;
       const ordinal = ordinalSuffix(cond_val);
       return `on the ${cond_val}${ordinal} corner`;
@@ -265,19 +265,19 @@ export function translateCondition(cond: SkillCondition): string {
     // ── Proximity / blocking ─────────────────────────────────────────────────
 
     case 'bashin_diff_behind':
-      return `closest uma behind at ${fmtOp(operator, cond_val)} length(s) behind`;
+      return `closest uma behind is ${fmtOp(operator, cond_val)} lengths back`;
 
     case 'bashin_diff_infront':
-      return `closest uma ahead at ${fmtOp(operator, cond_val)} length(s) ahead`;
+      return `closest uma ahead is ${fmtOp(operator, cond_val)} lengths ahead`;
 
     case 'near_count':
-      return `${fmtOp(operator, cond_val)} other umas nearby`;
+      return `${fmtOp(operator, cond_val)} other uma nearby`;
 
     case 'near_infront_count':
-      return `${fmtOp(operator, cond_val)} umas right ahead`;
+      return `${fmtOp(operator, cond_val)} uma right ahead`;
 
     case 'visiblehorse':
-      return `${fmtOp(operator, cond_val)} umas in field of vision`;
+      return `${fmtOp(operator, cond_val)} uma in field of vision`;
 
     case 'behind_near_lane_time':
       return `uma right behind for ${fmtOp(operator, cond_val)} seconds`;
@@ -298,10 +298,10 @@ export function translateCondition(cond: SkillCondition): string {
       return `blocked from the side for ${fmtOp(operator, cond_val)} seconds`;
 
     case 'blocked_all_continuetime':
-      return `blocked from front and side for ${fmtOp(operator, cond_val)} seconds`;
+      return `blocked from the front and side for ${fmtOp(operator, cond_val)} seconds`;
 
     case 'is_surrounded':
-      return cond_val === '1' ? `surrounded by other umas` : `not surrounded by other umas`;
+      return cond_val === '1' ? `surrounded by other uma` : `not surrounded by other uma`;
 
     // ── Overtaking ───────────────────────────────────────────────────────────
 
@@ -309,16 +309,16 @@ export function translateCondition(cond: SkillCondition): string {
       return Number(cond_val) < 0 ? `on overtaking another uma` : `on getting overtaken`;
 
     case 'change_order_up_end_after':
-      return `overtaken ${fmtOp(operator, cond_val)} umas since the Late-Race`;
+      return `overtaken ${fmtOp(operator, cond_val)} uma since the Late-Race`;
 
     case 'change_order_up_finalcorner_after':
-      return `overtaken ${fmtOp(operator, cond_val)} umas since the final corner`;
+      return `overtaken ${fmtOp(operator, cond_val)} uma since the final corner`;
 
     case 'change_order_up_middle':
-      return `overtaken ${fmtOp(operator, cond_val)} umas during the Mid-Race`;
+      return `overtaken ${fmtOp(operator, cond_val)} uma during the Mid-Race`;
 
     case 'is_overtake':
-      return cond_val === '1' ? `have an overtake target` : `no overtake targets`;
+      return cond_val === '1' ? `have an overtake target` : `have no overtake targets`;
 
     case 'overtake_target_no_order_up_time':
       return `had an overtake target for ${fmtOp(operator, cond_val)} seconds`;
@@ -327,7 +327,7 @@ export function translateCondition(cond: SkillCondition): string {
       return `been an overtake target for ${fmtOp(operator, cond_val)} seconds`;
 
     case 'compete_fight_count':
-      return `been in ${fmtOp(operator, cond_val)} showdown(s) on the final straight`;
+      return `had ${fmtOp(operator, cond_val)} showdowns on the final straight`;
 
     // ── Running style ────────────────────────────────────────────────────────
 
@@ -337,7 +337,7 @@ export function translateCondition(cond: SkillCondition): string {
     }
 
     case 'running_style_count_same':
-      return `${fmtOp(operator, cond_val)} umas sharing running style (including self)`;
+      return `${fmtOp(operator, cond_val)} uma sharing running style (including self)`;
 
     case 'running_style_count_same_rate':
       return `${fmtOp(operator, `${cond_val}%`)} of the field shares running style`;
@@ -368,16 +368,16 @@ export function translateCondition(cond: SkillCondition): string {
       return `rushed ${fmtOp(operator, cond_val)} times this race`;
 
     case 'temptation_count_behind':
-      return `${fmtOp(operator, cond_val)} umas behind rushing`;
+      return `${fmtOp(operator, cond_val)} rushing uma behind`;
 
     case 'temptation_count_infront':
-      return `${fmtOp(operator, cond_val)} umas ahead rushing`;
+      return `${fmtOp(operator, cond_val)} rushing uma ahead`;
 
     case 'temptation_opponent_count_behind':
-      return `${fmtOp(operator, cond_val)} enemies behind rushing`;
+      return `${fmtOp(operator, cond_val)} rushing enemies behind`;
 
     case 'temptation_opponent_count_infront':
-      return `${fmtOp(operator, cond_val)} enemies ahead rushing`;
+      return `${fmtOp(operator, cond_val)} rushing enemies ahead`;
 
     case 'running_style_temptation_count_nige':
       return `${fmtOp(operator, cond_val)} rushing Front Runners in the race`;
@@ -437,16 +437,16 @@ export function translateCondition(cond: SkillCondition): string {
         : `haven't just activated a recovery skill`;
 
     case 'is_activate_other_skill_detail':
-      return `an earlier trigger of this skill fired`;
+      return `this skill's earlier trigger already fired`;
 
     case 'is_used_skill_id':
       return `activated ${skillName(cond_val)} this race`;
 
     case 'is_exist_skill_id':
-      return `${skillName(cond_val)} present in the race`;
+      return `${skillName(cond_val)} is in the race`;
 
     case 'same_skill_horse_count':
-      return `${fmtOp(operator, cond_val)} uma(s) have this skill (including self)`;
+      return `${fmtOp(operator, cond_val)} uma share this skill (including self)`;
 
     case 'is_other_character_activate_advantage_skill':
       return `another character activated a skill of type ${cond_val}`;
@@ -463,7 +463,7 @@ export function translateCondition(cond: SkillCondition): string {
 
     case 'ground_condition': {
       const condition = GROUND_CONDITION_NAMES[cond_val] ?? cond_val;
-      return `track condition: ${condition}`;
+      return `track in ${condition} condition`;
     }
 
     case 'distance_type': {
@@ -516,10 +516,10 @@ export function translateCondition(cond: SkillCondition): string {
       return `at a random point on any uphill in the second half of the race`;
 
     case 'run_at_full_speed_random':
-      return `at a random point during full-speed spurt`;
+      return `at a random point during a full-speed last spurt (Zenaki Spurt)`;
 
     case 'is_tight_track':
-      return cond_val === '1' ? `track with tight corners` : `track without tight corners`;
+      return cond_val === '1' ? `tight-corner track` : `standard-corner track`;
 
     case 'is_dirtgrade':
       return cond_val === '1' ? `exchange race (local track)` : `not an exchange race`;
@@ -542,17 +542,17 @@ export function translateCondition(cond: SkillCondition): string {
     case 'is_move_lane':
       return cond_val === '1'
         ? `just moved closer to the inner fence`
-        : `just moved further from the inner fence`;
+        : `just moved farther from the inner fence`;
 
     case 'is_behind_in':
       return cond_val === '1'
-        ? `uma behind is closer to the inner fence`
-        : `uma behind is not closer to the inner fence`;
+        ? `uma behind is on the inner fence side`
+        : `uma behind is on the outer fence side`;
 
     // ── Race entry ───────────────────────────────────────────────────────────
 
     case 'post_number':
-      return `started in gate block ${fmtOp(operator, cond_val)}`;
+      return `started in gate ${fmtOp(operator, cond_val)}`;
 
     case 'is_badstart':
       return cond_val === '0' ? `didn't late start` : `late start`;
@@ -565,9 +565,9 @@ export function translateCondition(cond: SkillCondition): string {
 
     case 'motivation': {
       const mood = MOTIVATION_NAMES[cond_val] ?? cond_val;
-      if (operator === '==') return `mood: ${mood}`;
-      if (operator === '>=') return `mood ${mood} or better`;
-      if (operator === '<=') return `mood ${mood} or worse`;
+      if (operator === '==') return `${mood} mood`;
+      if (operator === '>=') return `${mood} mood or better`;
+      if (operator === '<=') return `${mood} mood or worse`;
       return `mood ${operator} ${mood}`;
     }
 
