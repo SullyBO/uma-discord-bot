@@ -27,7 +27,7 @@ export type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 async function apiFetch<T>(path: string, schema: Schema, fetcher: Fetcher): Promise<T> {
   const start = Date.now();
 
-  const res = await fetcher(`${process.env.API_URL}${path}`, {
+  const res = await fetcher(`${process.env.API_URL}/v1${path}`, {
     headers: {
       Authorization: `Bearer ${process.env.API_KEY}`,
     },
