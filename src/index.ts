@@ -16,6 +16,7 @@ import * as helpCommand from './commands/help';
 import * as cmCommand from './commands/cm';
 import * as cardCommand from './commands/card';
 import * as cardsCommand from './commands/cards';
+import { logCommand } from './utils/axiom';
 
 dotenvFlow.config();
 
@@ -61,15 +62,27 @@ client.on('interactionCreate', async (interaction) => {
   const command = commands.get(interaction.commandName);
   if (!command) return;
 
+  const start = Date.now();
+  let success = true;
+
   try {
     await command.execute(interaction);
   } catch (error) {
+    success = false;
     console.error(error);
     if (interaction.deferred) {
       await interaction.editReply({ content: 'Something went wrong.' });
     } else {
       await interaction.reply({ content: 'Something went wrong.', flags: MessageFlags.Ephemeral });
     }
+  } finally {
+    logCommand({
+      user_id: interaction.user.id,
+      guild_id: interaction.guildId,
+      command: interaction.commandName,
+      latency_ms: Date.now() - start,
+      success,
+    }).catch(() => undefined);
   }
 });
 
