@@ -44,6 +44,7 @@ const ACQUISITION_ORDER = ['Event', 'Hint'];
 function cardUrl(detail: CardDetail): string {
   const slug = detail.char_name
     .toLowerCase()
+    .replace(/'/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
   return `https://gametora.com/umamusume/supports/${detail.support_id}-${slug}`;
