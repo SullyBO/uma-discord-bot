@@ -65,14 +65,20 @@ describe('translateCondition', () => {
       expect(translateCondition(cond('order_rate', 'eq', '50'))).toContain('exactly at');
     });
 
-    it('falls back to raw format for other operators', () => {
-      expect(translateCondition(cond('order_rate', 'gt', '50'))).toContain('position in the field');
+    it('returns outside top X% for >', () => {
+      expect(translateCondition(cond('order_rate', 'gt', '50'))).toContain('outside the top 50%');
+    });
+
+    it('returns strictly inside top X% for <', () => {
+      expect(translateCondition(cond('order_rate', 'lt', '50'))).toContain(
+        'strictly inside the top 50%',
+      );
     });
   });
 
   describe('corner', () => {
     it('returns on any corner for != 0', () => {
-      expect(translateCondition(cond('corner', 'not_eq', '0'))).toBe('on any corner');
+      expect(translateCondition(cond('corner', 'not_eq', '0'))).toBe('on a corner');
     });
 
     it('returns not on a corner for == 0', () => {
@@ -104,7 +110,7 @@ describe('translateCondition', () => {
 
   describe('motivation', () => {
     it('returns mood: X for ==', () => {
-      expect(translateCondition(cond('motivation', 'eq', '3'))).toContain('mood:');
+      expect(translateCondition(cond('motivation', 'eq', '3'))).toContain('mood');
     });
 
     it('returns or better for >=', () => {

@@ -134,6 +134,10 @@ export function translateCondition(cond: SkillCondition): string {
           return `in the bottom ${100 - pct}% of the field (bottom ${9 - cmPos} in CM, bottom ${12 - lohPos} in LOH)`;
         case '==':
           return `exactly at the top ${cond_val}% mark (${cmPos}${ordinalSuffix(String(cmPos))} in CM, ${lohPos}${ordinalSuffix(String(lohPos))} in LOH)`;
+        case '>':
+          return `outside the top ${cond_val}% of the field (${9 - cmPos + 1}th or worse in CM, ${12 - lohPos + 1}th or worse in LOH)`;
+        case '<':
+          return `strictly inside the top ${cond_val}% of the field (top ${cmPos - 1} in CM, top ${lohPos - 1} in LOH)`;
         default:
           return `position in the field ${operator} top ${cond_val}%`;
       }
