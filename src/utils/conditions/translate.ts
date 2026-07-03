@@ -131,7 +131,7 @@ export function translateCondition(cond: SkillCondition): string {
         case '<=':
           return `1st–${cmPos}${ordinalSuffix(String(cmPos))} in CM, 1st–${lohPos}${ordinalSuffix(String(lohPos))} in LOH (top ${cond_val}% of the field)`;
         case '>=':
-          return `${cmPos + 1}${ordinalSuffix(String(cmPos + 1))}–9th in CM, ${lohPos + 1}${ordinalSuffix(String(lohPos + 1))}–12th in LOH (bottom ${100 - pct}% of the field)`;
+          return `${cmPos}${ordinalSuffix(String(cmPos))}–9th in CM, ${lohPos}${ordinalSuffix(String(lohPos))}–12th in LOH (bottom ${100 - pct}% of the field)`;
         case '==':
           return `${cmPos}${ordinalSuffix(String(cmPos))} in CM, ${lohPos}${ordinalSuffix(String(lohPos))} in LOH (exactly at the top ${cond_val}% mark)`;
         case '>':
