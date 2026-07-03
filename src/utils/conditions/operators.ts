@@ -63,5 +63,5 @@ export function ordinalSuffix(val: string): string {
 }
 
 export function fieldPos(pct: number, fieldSize: number): number {
-  return Math.round((fieldSize * pct) / 100);
+  return Math.ceil((fieldSize * pct) / 100);
 }
