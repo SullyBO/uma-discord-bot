@@ -129,15 +129,15 @@ export function translateCondition(cond: SkillCondition): string {
       const lohPos = fieldPos(pct, 12);
       switch (operator) {
         case '<=':
-          return `in the top ${cond_val}% of the field (top ${cmPos} in CM, top ${lohPos} in LOH)`;
+          return `1st–${cmPos}${ordinalSuffix(String(cmPos))} in CM, 1st–${lohPos}${ordinalSuffix(String(lohPos))} in LOH (top ${cond_val}% of the field)`;
         case '>=':
-          return `in the bottom ${100 - pct}% of the field (bottom ${9 - cmPos} in CM, bottom ${12 - lohPos} in LOH)`;
+          return `${cmPos + 1}${ordinalSuffix(String(cmPos + 1))}–9th in CM, ${lohPos + 1}${ordinalSuffix(String(lohPos + 1))}–12th in LOH (bottom ${100 - pct}% of the field)`;
         case '==':
-          return `exactly at the top ${cond_val}% mark (${cmPos}${ordinalSuffix(String(cmPos))} in CM, ${lohPos}${ordinalSuffix(String(lohPos))} in LOH)`;
+          return `${cmPos}${ordinalSuffix(String(cmPos))} in CM, ${lohPos}${ordinalSuffix(String(lohPos))} in LOH (exactly at the top ${cond_val}% mark)`;
         case '>':
-          return `outside the top ${cond_val}% of the field (${9 - cmPos + 2}th or worse in CM, ${12 - lohPos + 2}th or worse in LOH)`;
+          return `${cmPos + 1}${ordinalSuffix(String(cmPos + 1))}–9th in CM, ${lohPos + 1}${ordinalSuffix(String(lohPos + 1))}–12th in LOH (outside the top ${cond_val}% of the field)`;
         case '<':
-          return `strictly inside the top ${cond_val}% of the field (top ${cmPos - 1} in CM, top ${lohPos - 1} in LOH)`;
+          return `1st–${cmPos - 1}${ordinalSuffix(String(cmPos - 1))} in CM, 1st–${lohPos - 1}${ordinalSuffix(String(lohPos - 1))} in LOH (strictly inside the top ${cond_val}% of the field)`;
         default:
           return `position in the field ${operator} top ${cond_val}%`;
       }
