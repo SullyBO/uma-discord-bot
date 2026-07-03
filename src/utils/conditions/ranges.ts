@@ -17,7 +17,7 @@ export function translateRange(cond_key: string, lo: string, hi: string): string
       const cmHi = fieldPos(hiPct, 9);
       const lohLo = fieldPos(loPct, 12);
       const lohHi = fieldPos(hiPct, 12);
-      return `placed between the top ${loPct}% and ${hiPct}% of the field \n\u2002(${cmLo}${ordinalSuffix(String(cmLo))}–${cmHi}${ordinalSuffix(String(cmHi))} in CM, ${lohLo}${ordinalSuffix(String(lohLo))}–${lohHi}${ordinalSuffix(String(lohHi))} in LOH)`;
+      return `${cmLo}${ordinalSuffix(String(cmLo))}–${cmHi}${ordinalSuffix(String(cmHi))} in CM, ${lohLo}${ordinalSuffix(String(lohLo))}–${lohHi}${ordinalSuffix(String(lohHi))} in LOH \n\u2002(between the top ${loPct}% and ${hiPct}% of the field)`;
     }
     case 'remain_distance':
       return `between ${lo} and ${hi} meters remaining`;
