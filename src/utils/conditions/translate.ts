@@ -309,8 +309,11 @@ export function translateCondition(cond: SkillCondition): string {
 
     // ── Overtaking ───────────────────────────────────────────────────────────
 
-    case 'change_order_onetime':
-      return Number(cond_val) < 0 ? `on overtaking another uma` : `on getting overtaken`;
+    case 'change_order_onetime': {
+      if (operator === '<' || operator === '<=') return `on overtaking another uma`;
+      if (operator === '>' || operator === '>=') return `on getting overtaken`;
+      return `change in position (${operator} ${cond_val})`;
+    }
 
     case 'change_order_up_end_after':
       return `overtaken ${fmtOp(operator, cond_val)} uma since the Late-Race`;
