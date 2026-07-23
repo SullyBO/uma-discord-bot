@@ -20,6 +20,9 @@ import { logCommand } from './utils/axiom';
 
 dotenvFlow.config();
 
+console.log('API_URL:', process.env.API_URL ? 'set' : 'MISSING');
+console.log('DISCORD_TOKEN:', process.env.DISCORD_TOKEN ? 'set' : 'MISSING');
+
 const commands = new Collection<
   string,
   { execute: (interaction: ChatInputCommandInteraction) => Promise<void> }
