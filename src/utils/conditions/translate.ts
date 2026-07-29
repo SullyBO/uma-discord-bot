@@ -14,6 +14,7 @@ import {
   TIME_NAMES,
   MOTIVATION_NAMES,
   LASTSPURT_NAMES,
+  ADVANTAGE_SKILL_TYPE_NAMES,
 } from '../../constants/skill-conditions';
 
 function umaName(id: string): string {
@@ -455,8 +456,12 @@ export function translateCondition(cond: SkillCondition): string {
     case 'same_skill_horse_count':
       return `${fmtOp(operator, cond_val)} uma share this skill (including self)`;
 
-    case 'is_other_character_activate_advantage_skill':
-      return `another character activated a skill of type ${cond_val}`;
+    case 'is_other_character_activate_advantage_skill': {
+      const type = ADVANTAGE_SKILL_TYPE_NAMES[cond_val];
+      return type
+        ? `another character activated a ${type} skill`
+        : `another character activated a skill of type ${cond_val}`;
+    }
 
     // ── Track / race conditions ──────────────────────────────────────────────
 

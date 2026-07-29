@@ -73,3 +73,7 @@ export const LASTSPURT_NAMES: Record<string, string> = {
   '1': 'enough stamina to run above base speed but not enough to finish at max speed',
   '2': 'enough stamina to finish at max speed',
 };
+
+export const ADVANTAGE_SKILL_TYPE_NAMES: Record<string, string> = {
+  '9': 'Recovery',
+};
