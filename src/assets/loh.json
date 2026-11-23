@@ -1,0 +1,308 @@
+[
+  {
+    "end": 1684637999,
+    "id": 1,
+    "race": {
+      "condition": 0,
+      "course_set": 10606,
+      "dirt_grade": 0,
+      "distance": 2400,
+      "ground": 1,
+      "season": 1,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10006,
+      "turn": 2,
+      "weather": 0
+    },
+    "start": 1683860400
+  },
+  {
+    "end": 1689994799,
+    "id": 2,
+    "race": {
+      "condition": 0,
+      "course_set": 10501,
+      "dirt_grade": 0,
+      "distance": 1200,
+      "ground": 1,
+      "season": 2,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10005,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1689217200
+  },
+  {
+    "end": 1695351599,
+    "id": 3,
+    "race": {
+      "condition": 0,
+      "course_set": 10810,
+      "dirt_grade": 0,
+      "distance": 3000,
+      "ground": 1,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1694574000
+  },
+  {
+    "end": 1700535599,
+    "id": 4,
+    "race": {
+      "condition": 0,
+      "course_set": 10805,
+      "dirt_grade": 0,
+      "distance": 1600,
+      "ground": 1,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1699758000
+  },
+  {
+    "end": 1705805999,
+    "id": 5,
+    "race": {
+      "condition": 0,
+      "course_set": 11303,
+      "dirt_grade": 1,
+      "distance": 2100,
+      "ground": 2,
+      "season": 4,
+      "tight_track": 1,
+      "time": 3,
+      "track": 10103,
+      "turn": 2,
+      "weather": 0
+    },
+    "start": 1705028400
+  },
+  {
+    "end": 1716433199,
+    "id": 6,
+    "race": {
+      "condition": 0,
+      "course_set": 10811,
+      "dirt_grade": 0,
+      "distance": 3200,
+      "ground": 1,
+      "season": 1,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1715655600
+  },
+  {
+    "end": 1722394799,
+    "id": 7,
+    "race": {
+      "condition": 0,
+      "course_set": 10301,
+      "dirt_grade": 0,
+      "distance": 1000,
+      "ground": 1,
+      "season": 2,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10003,
+      "turn": 4,
+      "weather": 0
+    },
+    "start": 1721617200
+  },
+  {
+    "end": 1727837999,
+    "id": 8,
+    "race": {
+      "condition": 0,
+      "course_set": 10805,
+      "dirt_grade": 0,
+      "distance": 1600,
+      "ground": 1,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1727060400
+  },
+  {
+    "end": 1732935599,
+    "id": 9,
+    "race": {
+      "condition": 0,
+      "course_set": 10808,
+      "dirt_grade": 0,
+      "distance": 2200,
+      "ground": 1,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1732158000
+  },
+  {
+    "end": 1740452399,
+    "id": 10,
+    "race": {
+      "condition": 0,
+      "course_set": 10501,
+      "dirt_grade": 0,
+      "distance": 1200,
+      "ground": 1,
+      "season": 4,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10005,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1739674800
+  },
+  {
+    "end": 1748833199,
+    "id": 11,
+    "race": {
+      "condition": 0,
+      "course_set": 11103,
+      "dirt_grade": 1,
+      "distance": 2000,
+      "ground": 2,
+      "season": 1,
+      "tight_track": 0,
+      "time": 4,
+      "track": 10101,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1748055600
+  },
+  {
+    "end": 1756004399,
+    "id": 12,
+    "race": {
+      "condition": 0,
+      "course_set": 10105,
+      "dirt_grade": 0,
+      "distance": 2600,
+      "ground": 1,
+      "season": 2,
+      "tight_track": 1,
+      "time": 2,
+      "track": 10001,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1755226800
+  },
+  {
+    "end": 1764471599,
+    "id": 13,
+    "race": {
+      "condition": 0,
+      "course_set": 11502,
+      "dirt_grade": 1,
+      "distance": 1600,
+      "ground": 2,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10105,
+      "turn": 2,
+      "weather": 0
+    },
+    "start": 1763694000
+  },
+  {
+    "end": 1771901999,
+    "id": 14,
+    "race": {
+      "condition": 0,
+      "course_set": 10602,
+      "dirt_grade": 0,
+      "distance": 1600,
+      "ground": 1,
+      "season": 4,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10006,
+      "turn": 2,
+      "weather": 0
+    },
+    "start": 1771124400
+  },
+  {
+    "end": 1780196399,
+    "id": 15,
+    "race": {
+      "condition": 0,
+      "course_set": 10801,
+      "dirt_grade": 0,
+      "distance": 1200,
+      "ground": 1,
+      "season": 1,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1779418800
+  },
+  {
+    "end": 1787453999,
+    "id": 16,
+    "race": {
+      "condition": 0,
+      "course_set": 10504,
+      "dirt_grade": 0,
+      "distance": 2000,
+      "ground": 1,
+      "season": 2,
+      "tight_track": 1,
+      "time": 2,
+      "track": 10005,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1786676400
+  },
+  {
+    "end": 1796093999,
+    "id": 17,
+    "race": {
+      "condition": 0,
+      "course_set": 10810,
+      "dirt_grade": 0,
+      "distance": 3000,
+      "ground": 1,
+      "season": 3,
+      "tight_track": 0,
+      "time": 2,
+      "track": 10008,
+      "turn": 1,
+      "weather": 0
+    },
+    "start": 1795316400
+  }
+]

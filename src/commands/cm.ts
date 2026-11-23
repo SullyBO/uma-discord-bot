@@ -12,57 +12,24 @@ import {
 } from 'discord.js';
 import cms from '../assets/cm.json';
 import { CM } from '../types';
+import { CONDITION, GROUND, SEASON, TRACK, TURN, WEATHER, lookup } from '../utils/race/properties';
 
 const CM_DATA = cms as CM[];
-
-const GROUND: Record<number, string> = { 1: 'Turf', 2: 'Dirt' };
-const SEASON: Record<number, string> = {
-  1: 'Spring',
-  2: 'Summer',
-  3: 'Fall',
-  4: 'Winter',
-  5: 'Cherry Blossom',
-};
-const WEATHER: Record<number, string> = { 1: 'Sunny', 2: 'Cloudy', 3: 'Rainy', 4: 'Snowy' };
-const CONDITION: Record<number, string> = { 1: 'Firm', 2: 'Good', 3: 'Soft', 4: 'Heavy' };
-const TURN: Record<number, string> = { 1: 'Right-handed', 2: 'Left-handed' };
-const TRACK: Record<number, string> = {
-  10001: 'Sapporo',
-  10002: 'Hakodate',
-  10003: 'Niigata',
-  10004: 'Fukushima',
-  10005: 'Nakayama',
-  10006: 'Tokyo',
-  10007: 'Chukyo',
-  10008: 'Kyoto',
-  10009: 'Hanshin',
-  10010: 'Kokura',
-  10101: 'Ooi',
-  10103: 'Kawasaki',
-  10104: 'Funabashi',
-  10105: 'Morioka',
-  10201: 'Longchamp',
-  10202: 'Santa Anita Park',
-  10203: 'Del Mar',
-};
-
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
 export function buildEmbed(cm: CM): EmbedBuilder {
   const name = cm.name_en ?? cm.name;
-  const surface = GROUND[cm.race.ground] ?? String(cm.race.ground);
-  return new EmbedBuilder().setTitle(`CM ${cm.id} - ${name} - ${surface}`).addFields(
-    { name: 'Track', value: TRACK[cm.race.track] ?? String(cm.race.track), inline: true },
-    { name: 'Distance', value: `${cm.race.distance}m`, inline: true },
-    { name: 'Direction', value: TURN[cm.race.turn] ?? String(cm.race.turn), inline: true },
-    { name: 'Season', value: SEASON[cm.race.season] ?? String(cm.race.season), inline: true },
-    {
-      name: 'Condition',
-      value: CONDITION[cm.race.condition] ?? String(cm.race.condition),
-      inline: true,
-    },
-    { name: 'Weather', value: WEATHER[cm.race.weather] ?? String(cm.race.weather), inline: true },
-  );
+  const surface = lookup(GROUND, cm.race.ground);
+  return new EmbedBuilder()
+    .setTitle(`CM ${cm.id} - ${name} - ${surface}`)
+    .addFields(
+      { name: 'Track', value: lookup(TRACK, cm.race.track), inline: true },
+      { name: 'Distance', value: `${cm.race.distance}m`, inline: true },
+      { name: 'Direction', value: lookup(TURN, cm.race.turn), inline: true },
+      { name: 'Season', value: lookup(SEASON, cm.race.season), inline: true },
+      { name: 'Condition', value: lookup(CONDITION, cm.race.condition), inline: true },
+      { name: 'Weather', value: lookup(WEATHER, cm.race.weather), inline: true },
+    );
 }
 
 export function buildRow(pageIndex: number, totalPages: number): ActionRowBuilder<ButtonBuilder> {

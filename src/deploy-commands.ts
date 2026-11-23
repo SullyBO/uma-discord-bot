@@ -8,6 +8,7 @@ import { data as helpCommand } from './commands/help';
 import { data as cmCommand } from './commands/cm';
 import { data as cardCommand } from './commands/card';
 import { data as cardsCommand } from './commands/cards';
+import { data as lohCommand } from './commands/loh';
 
 dotenvFlow.config();
 
@@ -23,6 +24,7 @@ const commands = [
   cmCommand.toJSON(),
   cardCommand.toJSON(),
   cardsCommand.toJSON(),
+  lohCommand.toJSON(),
 ];
 
 const rest = new REST().setToken(token);

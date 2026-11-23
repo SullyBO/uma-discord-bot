@@ -173,3 +173,24 @@ export interface SkillAcquisitionEntry {
   source_type: 'uma' | 'support_card';
   acquisition: string;
 }
+
+export interface LoHRace {
+  condition: number;
+  course_set: number;
+  dirt_grade: number;
+  distance: number;
+  ground: number;
+  season: number;
+  tight_track: number;
+  time: number;
+  track: number;
+  turn: number;
+  weather: number;
+}
+
+export interface LoH {
+  id: number;
+  race: LoHRace;
+  start: number;
+  end: number;
+}

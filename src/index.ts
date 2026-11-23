@@ -16,6 +16,7 @@ import * as helpCommand from './commands/help';
 import * as cmCommand from './commands/cm';
 import * as cardCommand from './commands/card';
 import * as cardsCommand from './commands/cards';
+import * as lohCommand from './commands/loh';
 import { logCommand } from './utils/axiom';
 
 dotenvFlow.config();
@@ -35,6 +36,7 @@ commands.set(helpCommand.data.name, helpCommand);
 commands.set(cmCommand.data.name, cmCommand);
 commands.set(cardCommand.data.name, cardCommand);
 commands.set(cardsCommand.data.name, cardsCommand);
+commands.set(lohCommand.data.name, lohCommand);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
