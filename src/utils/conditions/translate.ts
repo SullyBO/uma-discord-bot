@@ -17,6 +17,9 @@ import {
   ADVANTAGE_SKILL_TYPE_NAMES,
 } from '../../constants/skill-conditions';
 
+const CM_FIELD = 9;
+const LOH_FIELD = 12;
+
 function umaName(id: string): string {
   const uma = umaCache.get(Number(id));
   return uma?.name ?? `unknown character (id: ${id})`;
@@ -25,6 +28,51 @@ function umaName(id: string): string {
 function skillName(id: string): string {
   const skill = skillCache.get(Number(id));
   return skill?.name ?? `unknown skill (id: ${id})`;
+}
+
+/** 1 → "1st", 3 → "3rd", 11 → "11th" */
+function ord(n: number): string {
+  return `${n}${ordinalSuffix(String(n))}`;
+}
+
+/**
+ * Formats an inclusive placement range, clamped to the field.
+ * Returns "impossible" when no placement in the field satisfies it
+ * (e.g. order_rate<10 in a 9-uma field → order<1).
+ */
+function placeRange(lo: number, hi: number, fieldSize: number): string {
+  const from = Math.max(lo, 1);
+  const to = Math.min(hi, fieldSize);
+  if (from > to) return 'impossible';
+  if (from === to) return ord(from);
+  return `${ord(from)}–${ord(to)}`;
+}
+
+/** Renders the same placement rule for both CM and LOH field sizes. */
+function bothFields(range: (pos: number, fieldSize: number) => string, pct: number): string {
+  const cm = range(fieldPos(pct, CM_FIELD), CM_FIELD);
+  const loh = range(fieldPos(pct, LOH_FIELD), LOH_FIELD);
+  return `${cm} in CM, ${loh} in LOH`;
+}
+
+/**
+ * order_rate_inXX_continue: must stay in the top XX% until activation.
+ * The first 5 seconds of the race do not count.
+ */
+function continueInside(pct: number): string {
+  const cm = fieldPos(pct, CM_FIELD);
+  const loh = fieldPos(pct, LOH_FIELD);
+  return `stayed in the top ${pct}% from 5s into the race until activation (top ${cm} in CM, top ${loh} in LOH)`;
+}
+
+/**
+ * order_rate_outXX_continue: mirror of inXX_continue.
+ * Not covered by the race mechanics docs — assumed symmetric (same 5s grace, held until activation).
+ */
+function continueOutside(pct: number): string {
+  const cm = fieldPos(pct, CM_FIELD) + 1;
+  const loh = fieldPos(pct, LOH_FIELD) + 1;
+  return `stayed outside the top ${pct}% from 5s into the race until activation (${ord(cm)} or worse in CM, ${ord(loh)} or worse in LOH)`;
 }
 
 export function translateCondition(cond: SkillCondition): string {
@@ -67,8 +115,10 @@ export function translateCondition(cond: SkillCondition): string {
     }
 
     case 'phase_corner_random': {
+      // Corners in the phase are stitched together before placing the trigger,
+      // so each corner's chance is proportional to its length.
       const phase = PHASE_NAMES[cond_val] ?? cond_val;
-      return `at a random corner during the ${phase}`;
+      return `at a random point on the corners of the ${phase}`;
     }
 
     case 'phase_straight_random': {
@@ -125,72 +175,47 @@ export function translateCondition(cond: SkillCondition): string {
       return `in ${fmtPositionOp(operator, `${cond_val}${ordinalSuffix(cond_val)} place`)}`;
 
     case 'order_rate': {
+      // order_rate OP pct → order OP round(fieldSize * pct / 100)
       const pct = Number(cond_val);
-      const cmPos = fieldPos(pct, 9);
-      const lohPos = fieldPos(pct, 12);
       switch (operator) {
         case '<=':
-          return `1st–${cmPos}${ordinalSuffix(String(cmPos))} in CM, 1st–${lohPos}${ordinalSuffix(String(lohPos))} in LOH (top ${cond_val}% of the field)`;
+          return `${bothFields((p, n) => placeRange(1, p, n), pct)} (top ${cond_val}% of the field)`;
         case '>=':
-          return `${cmPos}${ordinalSuffix(String(cmPos))}–9th in CM, ${lohPos}${ordinalSuffix(String(lohPos))}–12th in LOH (bottom ${100 - pct}% of the field)`;
+          return `${bothFields((p, n) => placeRange(p, n, n), pct)} (bottom ${100 - pct}% of the field)`;
         case '==':
-          return `${cmPos}${ordinalSuffix(String(cmPos))} in CM, ${lohPos}${ordinalSuffix(String(lohPos))} in LOH (exactly at the top ${cond_val}% mark)`;
+          return `${bothFields((p, n) => placeRange(p, p, n), pct)} (exactly at the top ${cond_val}% mark)`;
         case '>':
-          return `${cmPos + 1}${ordinalSuffix(String(cmPos + 1))}–9th in CM, ${lohPos + 1}${ordinalSuffix(String(lohPos + 1))}–12th in LOH (outside the top ${cond_val}% of the field)`;
+          return `${bothFields((p, n) => placeRange(p + 1, n, n), pct)} (outside the top ${cond_val}% of the field)`;
         case '<':
-          return `1st–${cmPos - 1}${ordinalSuffix(String(cmPos - 1))} in CM, 1st–${lohPos - 1}${ordinalSuffix(String(lohPos - 1))} in LOH (strictly inside the top ${cond_val}% of the field)`;
+          return `${bothFields((p, n) => placeRange(1, p - 1, n), pct)} (strictly inside the top ${cond_val}% of the field)`;
         default:
           return `position in the field ${operator} top ${cond_val}%`;
       }
     }
 
-    case 'order_rate_in20_continue': {
-      const cm = fieldPos(20, 9);
-      const loh = fieldPos(20, 12);
-      return `been in the top 20% for the entire race (top ${cm} in CM, top ${loh} in LOH)`;
-    }
+    case 'order_rate_in20_continue':
+      return continueInside(20);
 
-    case 'order_rate_in40_continue': {
-      const cm = fieldPos(40, 9);
-      const loh = fieldPos(40, 12);
-      return `been in the top 40% for the entire race (top ${cm} in CM, top ${loh} in LOH)`;
-    }
+    case 'order_rate_in40_continue':
+      return continueInside(40);
 
-    case 'order_rate_in50_continue': {
-      const cm = fieldPos(50, 9);
-      const loh = fieldPos(50, 12);
-      return `been in the top 50% for the entire race (top ${cm} in CM, top ${loh} in LOH)`;
-    }
+    case 'order_rate_in50_continue':
+      return continueInside(50);
 
-    case 'order_rate_in80_continue': {
-      const cm = fieldPos(80, 9);
-      const loh = fieldPos(80, 12);
-      return `been in the top 80% for the entire race (top ${cm} in CM, top ${loh} in LOH)`;
-    }
+    case 'order_rate_in80_continue':
+      return continueInside(80);
 
-    case 'order_rate_out20_continue': {
-      const cm = fieldPos(20, 9);
-      const loh = fieldPos(20, 12);
-      return `been outside the top 20% for the entire race (${cm + 1}th or worse in CM, ${loh + 1}th or worse in LOH)`;
-    }
+    case 'order_rate_out20_continue':
+      return continueOutside(20);
 
-    case 'order_rate_out40_continue': {
-      const cm = fieldPos(40, 9);
-      const loh = fieldPos(40, 12);
-      return `been outside the top 40% for the entire race (${cm + 1}th or worse in CM, ${loh + 1}th or worse in LOH)`;
-    }
+    case 'order_rate_out40_continue':
+      return continueOutside(40);
 
-    case 'order_rate_out50_continue': {
-      const cm = fieldPos(50, 9);
-      const loh = fieldPos(50, 12);
-      return `been outside the top 50% for the entire race (${cm + 1}th or worse in CM, ${loh + 1}th or worse in LOH)`;
-    }
+    case 'order_rate_out50_continue':
+      return continueOutside(50);
 
-    case 'order_rate_out70_continue': {
-      const cm = fieldPos(70, 9);
-      const loh = fieldPos(70, 12);
-      return `been outside the top 70% for the entire race (${cm + 1}th or worse in CM, ${loh + 1}th or worse in LOH)`;
-    }
+    case 'order_rate_out70_continue':
+      return continueOutside(70);
 
     case 'distance_diff_rate':
       return `within ${cond_val}% of the 1st-to-last gap`;
@@ -213,12 +238,15 @@ export function translateCondition(cond: SkillCondition): string {
     }
 
     case 'corner_random': {
+      // On multi-lap courses the trigger is placed on the last lap.
       const ordinal = ordinalSuffix(cond_val);
-      return `at a random point on the ${cond_val}${ordinal} corner`;
+      return `at a random point on the ${cond_val}${ordinal} corner (final lap if repeated)`;
     }
 
     case 'all_corner_random':
-      return `at a random point on a random corner`;
+      // Up to 4 triggers on successive corners; later triggers only matter
+      // if the skill's cooldown has finished.
+      return `at a random point on a corner (up to 4 chances if cooldown allows)`;
 
     case 'is_finalcorner':
       return cond_val === '1' ? `on or past the final corner` : `not on the final corner`;
