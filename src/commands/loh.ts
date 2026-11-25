@@ -11,14 +11,10 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import lohs from '../assets/loh.json';
-import { CONDITION, GROUND, SEASON, TRACK, TURN, WEATHER, lookup } from '../utils/race/properties';
+import { GROUND, SEASON, TRACK, TURN, lookup } from '../utils/race/properties';
 import { LoH } from '../types';
 
 const LOH_DATA = lohs as LoH[];
-
-// LoH data ships weather/condition as 0; races are always run Sunny + Firm.
-const LOH_CONDITION = 1;
-const LOH_WEATHER = 1;
 
 const activeCollectors = new Map<string, InteractionCollector<ButtonInteraction>>();
 
@@ -31,8 +27,6 @@ export function buildEmbed(loh: LoH): EmbedBuilder {
       { name: 'Distance', value: `${loh.race.distance}m`, inline: true },
       { name: 'Direction', value: lookup(TURN, loh.race.turn), inline: true },
       { name: 'Season', value: lookup(SEASON, loh.race.season), inline: true },
-      { name: 'Condition', value: lookup(CONDITION, LOH_CONDITION), inline: true },
-      { name: 'Weather', value: lookup(WEATHER, LOH_WEATHER), inline: true },
     );
 }
 
